@@ -13,12 +13,9 @@
      "mask": "255.255.255.252",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:50:4a:2d:f9:98",
+     "lease": null
     },
     {
      "name": "G0/1",
@@ -26,12 +23,9 @@
      "mask": "255.255.255.0",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:0c:be:7e:d1:db",
+     "lease": null
     },
     {
      "name": "G0/2",
@@ -39,12 +33,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:ce:5f:21:b2",
+     "lease": null
     },
     {
      "name": "G0/3",
@@ -52,14 +43,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:0c:32:b8:39:ed",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],
@@ -104,14 +96,15 @@
      "mask": "255.255.255.0",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:e0:a2:d7:1d:86",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "203.0.113.1",
    "dns": "",
    "routes": [],
@@ -165,12 +158,9 @@
      "mask": "255.255.255.252",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:0c:b6:76:c9:f3",
+     "lease": null
     },
     {
      "name": "G0/1",
@@ -178,12 +168,9 @@
      "mask": "255.255.255.0",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": true,
-      "start": "192.168.1.100",
-      "end": "192.168.1.150",
-      "dns": "203.0.113.10"
-     }
+     "up": true,
+     "mac": "00:e0:62:fd:11:f0",
+     "lease": null
     },
     {
      "name": "G0/2",
@@ -191,12 +178,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": false,
+     "mac": "00:d0:22:c0:31:65",
+     "lease": null
     },
     {
      "name": "G0/3",
@@ -204,14 +188,28 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": false,
+     "mac": "00:e0:ee:9f:49:ba",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [
+     {
+      "name": "CASA",
+      "net": "192.168.1.0",
+      "mask": "255.255.255.0",
+      "gw": "192.168.1.1",
+      "dns": "203.0.113.10"
+     }
+    ],
+    "excl": [
+     {
+      "from": "192.168.1.1",
+      "to": "192.168.1.99"
+     }
+    ]
+   },
    "gw": "",
    "dns": "",
    "routes": [
@@ -262,12 +260,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:38:a5:55:80",
+     "lease": null
     },
     {
      "name": "Fa0/2",
@@ -275,12 +270,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:0c:62:3e:95:55",
+     "lease": null
     },
     {
      "name": "Fa0/3",
@@ -288,12 +280,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:4c:e7:99:06",
+     "lease": null
     },
     {
      "name": "Fa0/4",
@@ -301,12 +290,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:d0:3a:50:99:03",
+     "lease": null
     },
     {
      "name": "Fa0/5",
@@ -314,12 +300,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:b8:39:9d:34",
+     "lease": null
     },
     {
      "name": "Fa0/6",
@@ -327,12 +310,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:d0:a2:6a:a5:81",
+     "lease": null
     },
     {
      "name": "Fa0/7",
@@ -340,12 +320,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:e0:c4:4b:39:6a",
+     "lease": null
     },
     {
      "name": "Fa0/8",
@@ -353,14 +330,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:60:ca:cc:81:6f",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],
@@ -405,14 +383,19 @@
      "mask": "255.255.255.0",
      "mode": "dhcp",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
+     "up": true,
+     "mac": "00:1a:0e:01:05:8c",
+     "lease": {
+      "srv": "d4/CASA",
+      "srvIp": "192.168.1.1",
+      "srvName": "Router-Casa (pool CASA)"
      }
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "192.168.1.1",
    "dns": "203.0.113.10",
    "routes": [],
@@ -457,14 +440,19 @@
      "mask": "255.255.255.0",
      "mode": "dhcp",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
+     "up": true,
+     "mac": "00:50:22:d1:ad:84",
+     "lease": {
+      "srv": "d4/CASA",
+      "srvIp": "192.168.1.1",
+      "srvName": "Router-Casa (pool CASA)"
      }
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "192.168.1.1",
    "dns": "203.0.113.10",
    "routes": [],
@@ -509,14 +497,19 @@
      "mask": "255.255.255.0",
      "mode": "dhcp",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
+     "up": true,
+     "mac": "00:50:f6:c7:bd:46",
+     "lease": {
+      "srv": "d4/CASA",
+      "srvIp": "192.168.1.1",
+      "srvName": "Router-Casa (pool CASA)"
      }
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "192.168.1.1",
    "dns": "203.0.113.10",
    "routes": [],

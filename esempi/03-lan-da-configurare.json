@@ -13,12 +13,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:50:00:51:9d:4c",
+     "lease": null
     },
     {
      "name": "Fa0/2",
@@ -26,12 +23,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:60:b2:6a:35:c9",
+     "lease": null
     },
     {
      "name": "Fa0/3",
@@ -39,12 +33,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:ac:23:b1:0a",
+     "lease": null
     },
     {
      "name": "Fa0/4",
@@ -52,12 +43,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:d0:c2:3c:69:47",
+     "lease": null
     },
     {
      "name": "Fa0/5",
@@ -65,12 +53,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:e0:40:7d:c5:88",
+     "lease": null
     },
     {
      "name": "Fa0/6",
@@ -78,12 +63,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:60:e2:ee:35:8d",
+     "lease": null
     },
     {
      "name": "Fa0/7",
@@ -91,12 +73,9 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:50:34:ff:31:86",
+     "lease": null
     },
     {
      "name": "Fa0/8",
@@ -104,14 +83,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:d0:92:a0:b1:cb",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],
@@ -156,14 +136,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:1a:a6:d5:cd:10",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],
@@ -208,14 +189,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:0c:72:3a:05:bf",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],
@@ -260,14 +242,15 @@
      "mask": "",
      "mode": "static",
      "vlan": 1,
-     "dhcp": {
-      "on": false,
-      "start": "",
-      "end": "",
-      "dns": ""
-     }
+     "up": true,
+     "mac": "00:50:ce:ab:e5:2a",
+     "lease": null
     }
    ],
+   "dhcp": {
+    "pools": [],
+    "excl": []
+   },
    "gw": "",
    "dns": "",
    "routes": [],

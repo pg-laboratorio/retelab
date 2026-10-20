@@ -59,7 +59,8 @@ select.btn{padding-right:6px}
 .stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-height:0}
 #cv{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
 .grid-dot{fill:var(--line)}
-.hint{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 180px)!important;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12.5px;color:var(--muted);pointer-events:none;max-width:calc(100% - 20px)}
+#anim{pointer-events:none}
+.hint{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 270px)!important;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12.5px;color:var(--muted);pointer-events:none;max-width:calc(100% - 20px)}
 #toast{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none;max-width:calc(100% - 20px)}
 .toast{background:var(--ink);color:var(--panel);padding:7px 11px;border-radius:6px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.18);animation:tin .2s ease-out}
 .toast.err{background:var(--err);color:#fff}
@@ -89,6 +90,26 @@ select.btn{padding-right:6px}
 @keyframes fade{0%,60%{opacity:1}100%{opacity:0}}
 .okring{fill:none;stroke:var(--ok);stroke-width:3;animation:burst 1s ease-out forwards}
 
+/* wider console when the terminal tab is open */
+@media (min-width:1180px){ .app.wideterm{grid-template-columns:92px minmax(0,1fr) 640px} }
+/* ARP, link state, capture */
+.led.off{fill:var(--err)}
+.link .wire.down{stroke-dasharray:7 6;opacity:.7}
+.arpring{fill:none;stroke:var(--warn);stroke-width:3;animation:burst 1s ease-out forwards}
+.arpring.ans{stroke:var(--ok)}
+.arplbl{font-family:var(--f-mono);font-size:12px;font-weight:600;fill:var(--warn);paint-order:stroke;stroke:var(--panel);stroke-width:4px;animation:fade 1.2s ease-in forwards}
+.macs{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.tog{display:inline-flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
+.tog .off{color:var(--err);font-weight:600}
+.tog .on{color:var(--ok);font-weight:600}
+#bCap.fresh{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.modal .box.wide{width:min(860px,100%);overflow:auto}
+.cap td,.cap th{font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.cap td.tr{font-family:var(--f-ui);white-space:normal;min-width:150px}
+.cap tr.arp td{font-family:var(--f-ui);white-space:normal;background:color-mix(in srgb,var(--warn) 10%,var(--panel));color:var(--ink);font-size:12.5px}
+.cap tr.fail td{font-family:var(--f-ui);white-space:normal;background:color-mix(in srgb,var(--err) 10%,var(--panel));color:var(--ink);font-size:12.5px}
+.modal h4{margin:6px 0 2px;font-family:var(--f-disp);font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.chip.ex{background:color-mix(in srgb,var(--warn) 16%,var(--panel));color:var(--ink);border-color:color-mix(in srgb,var(--warn) 50%,var(--line));cursor:pointer;font-size:12.5px;padding:3px 10px}
 /* zoom */
 .zoom{position:absolute;right:10px;bottom:10px;display:flex;gap:4px}
 .zoom .btn{padding:4px 9px;min-width:34px;background:var(--panel)}
@@ -145,7 +166,8 @@ select.btn{padding-right:6px}
 kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--panel2)}
 
 .term{background:var(--term-bg);border-radius:8px;display:flex;flex-direction:column;min-height:340px;max-height:58vh}
-.tout{flex:1;overflow:auto;padding:10px 12px;font-family:var(--f-mono);font-size:12.5px;color:var(--term-fg);white-space:pre-wrap;word-break:break-word;line-height:1.45}
+.tout{flex:1;overflow:auto;padding:10px 12px;font-family:var(--f-mono);font-size:12px;color:var(--term-fg);white-space:pre;line-height:1.45}
+.tout .note,.tout .wrap,.tout .ok,.tout .err,.tout .dim{white-space:pre-wrap;word-break:break-word}
 .tout .cmd{color:#ffffff;font-weight:600}
 .tout .err{color:#ff8f86}
 .tout .ok{color:#7fe0a4}
@@ -189,6 +211,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   <defs>
     <symbol id="i-pc" viewBox="0 0 64 48"><rect x="8" y="3" width="48" height="31" rx="3" class="ib"/><rect x="13" y="8" width="38" height="21" rx="1" class="ia"/><path d="M27 34h10l2 7H25z" class="ib"/><rect x="17" y="41" width="30" height="4" rx="2" class="ib"/></symbol>
     <symbol id="i-laptop" viewBox="0 0 64 48"><rect x="12" y="5" width="40" height="29" rx="3" class="ib"/><rect x="16.5" y="9.5" width="31" height="20" rx="1" class="ia"/><path d="M4 37h56l-4 7H8z" class="ib"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 64 48"><rect x="18" y="3" width="28" height="13" rx="1" class="ib"/><rect x="6" y="15" width="52" height="20" rx="4" class="ia"/><rect x="16" y="28" width="32" height="17" rx="1" class="ib"/><path d="M21 34h22M21 39h16" class="ln" style="--c:var(--ink)"/><circle cx="50" cy="21" r="2" class="lnp" style="fill:var(--panel)"/></symbol>
     <symbol id="i-server" viewBox="0 0 64 48"><rect x="17" y="2" width="30" height="44" rx="3" class="ib"/><rect x="21.5" y="7" width="21" height="5" rx="1" class="ia"/><rect x="21.5" y="15" width="21" height="5" rx="1" class="ia"/><rect x="21.5" y="23" width="21" height="5" rx="1" class="ia"/><circle cx="32" cy="38" r="2.6" class="ia"/></symbol>
     <symbol id="i-switch" viewBox="0 0 64 48"><rect x="3" y="11" width="58" height="26" rx="4" class="ib"/><path d="M12 19h15m-4-3.5 4 3.5-4 3.5M52 19H37m4-3.5-4 3.5 4 3.5" class="ln"/><g class="ia"><rect x="9" y="27" width="5" height="5" rx="1"/><rect x="16" y="27" width="5" height="5" rx="1"/><rect x="23" y="27" width="5" height="5" rx="1"/><rect x="30" y="27" width="5" height="5" rx="1"/><rect x="37" y="27" width="5" height="5" rx="1"/><rect x="44" y="27" width="5" height="5" rx="1"/><rect x="51" y="27" width="5" height="5" rx="1"/></g></symbol>
     <symbol id="i-router" viewBox="0 0 64 48"><path d="M5 17v15c0 5.2 12 9.5 27 9.5S59 37.2 59 32V17" class="ib"/><ellipse cx="32" cy="17" rx="27" ry="9.5" class="ia"/><path d="M17 17h11m-3.5-3 3.5 3-3.5 3M47 17H36m3.5-3L36 17l3.5 3" class="lnp"/></symbol>
@@ -203,6 +226,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
       <svg viewBox="0 0 64 48" style="--c:var(--accent)"><use href="#i-router"/></svg>
       ReteLab <small>simulatore didattico</small>
     </div>
+    <button class="chip ex" id="exChip" hidden title="Clicca per disattivarla">Modalità esercizio</button>
     <select class="btn" id="exSel" aria-label="Carica un esempio">
       <option value="">Carica esempio…</option>
       <option value="home">Rete domestica (router, NAT, DHCP)</option>
@@ -224,6 +248,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     <h3>Dispositivi</h3>
     <button class="pal" data-add="pc"><svg viewBox="0 0 64 48" style="--c:#7a8b94"><use href="#i-pc"/></svg>PC</button>
     <button class="pal" data-add="laptop"><svg viewBox="0 0 64 48" style="--c:#7a8b94"><use href="#i-laptop"/></svg>Portatile</button>
+    <button class="pal" data-add="printer"><svg viewBox="0 0 64 48" style="--c:#8c7a5b"><use href="#i-printer"/></svg>Stampante</button>
     <button class="pal" data-add="server"><svg viewBox="0 0 64 48" style="--c:#5d6fb3"><use href="#i-server"/></svg>Server</button>
     <button class="pal" data-add="switch"><svg viewBox="0 0 64 48" style="--c:#2f6fd0"><use href="#i-switch"/></svg>Switch</button>
     <button class="pal" data-add="router"><svg viewBox="0 0 64 48" style="--c:#0b8a90"><use href="#i-router"/></svg>Router</button>
@@ -240,7 +265,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     </svg>
     <div class="hint" id="hint"></div>
     <div id="toast"></div>
-    <div class="zoom"><button class="btn" id="zOut" aria-label="Riduci" title="Riduci">−</button><button class="btn" id="zFit" title="Mostra tutta la rete">Adatta</button><button class="btn" id="zIn" aria-label="Ingrandisci" title="Ingrandisci">+</button></div>
+    <div class="zoom"><button class="btn" id="bCap" disabled title="Frame dell'ultimo comando: MAC e IP tratto per tratto">Pacchetti</button><button class="btn" id="zOut" aria-label="Riduci" title="Riduci">−</button><button class="btn" id="zFit" title="Mostra tutta la rete">Adatta</button><button class="btn" id="zIn" aria-label="Ingrandisci" title="Ingrandisci">+</button></div>
   </main>
 
   <section class="insp" id="insp" aria-label="Configurazione"></section>
@@ -255,6 +280,7 @@ const FA=[1,2,3,4,5,6,7,8].map(n=>'Fa0/'+n);
 const TYPES={
   pc:{label:'PC',base:'PC',ifs:['eth0'],kind:'host',c:'#7a8b94'},
   laptop:{label:'Portatile',base:'Portatile',ifs:['eth0'],kind:'host',c:'#7a8b94'},
+  printer:{label:'Stampante',base:'Stampante',ifs:['eth0'],kind:'host',c:'#8c7a5b'},
   server:{label:'Server',base:'Server',ifs:['eth0'],kind:'host',c:'#5d6fb3'},
   switch:{label:'Switch',base:'Switch',ifs:FA,kind:'switch',c:'#2f6fd0'},
   router:{label:'Router',base:'Router',ifs:['G0/0','G0/1','G0/2','G0/3'],kind:'router',c:'#0b8a90'},
@@ -282,11 +308,23 @@ function ifCfg(f){ const ip=ip2i(f.ip), p=maskPrefix(f.mask); return (ip!==null&
 function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ---------- model ---------- */
-function blankIf(n){ return {name:n,ip:'',mask:'',mode:'static',vlan:1,dhcp:{on:false,start:'',end:'',dns:''}}; }
+function blankIf(n){ return {name:n,ip:'',mask:'',mode:'static',vlan:1,up:true,mac:''}; }
+function genMac(seed){ let h=2166136261>>>0; const out=[0x00]; for(let r=0;r<5;r++){ for(const ch of seed+'#'+r){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } out.push(h&255); } out[1]=[0x1a,0x60,0xe0,0x0c,0x50,0xd0][out[1]%6]; return out.map(b=>b.toString(16).padStart(2,'0')).join(':'); }
+const macWin=m=>(m||'').toUpperCase().replace(/:/g,'-');
+const macCisco=m=>{ const h=(m||'').replace(/:/g,''); return h.slice(0,4)+'.'+h.slice(4,8)+'.'+h.slice(8,12); };
 function normalize(d){
   const T=TYPES[d.type]; if(!T) return null;
   d.ifaces=(d.ifaces||[]); T.ifs.forEach(n=>{ if(!d.ifaces.find(f=>f.name===n)) d.ifaces.push(blankIf(n)); });
-  d.ifaces.forEach(f=>{ const b=blankIf(f.name); for(const k in b) if(f[k]===undefined) f[k]=b[k]; f.dhcp=Object.assign(blankIf('').dhcp,f.dhcp||{}); });
+  const pools=(d.dhcp&&Array.isArray(d.dhcp.pools))?d.dhcp.pools:[], excl=(d.dhcp&&Array.isArray(d.dhcp.excl))?d.dhcp.excl:[];
+  d.ifaces.forEach(f=>{
+    // migrate the old per-interface DHCP (first-last range) to a Cisco-style pool with exclusions
+    const od=f.dhcp; if(od&&od.on){ const c=ifCfg(f); if(c){ const net=netOf(c.ip,c.p), bc=bcastOf(c.ip,c.p); pools.push({name:'LAN_'+f.name.replace(/\W/g,''),net:i2ip(net),mask:f.mask,gw:f.ip,dns:od.dns||''}); const a=ip2i(od.start), b=ip2i(od.end); if(a!==null&&a>net+1) excl.push({from:i2ip(net+1),to:i2ip(a-1)}); if(b!==null&&b<bc-1) excl.push({from:i2ip(b+1),to:i2ip(bc-1)}); } }
+    delete f.dhcp;
+    const b=blankIf(f.name); for(const k in b) if(f[k]===undefined) f[k]=b[k];
+    if(!f.mac) f.mac=genMac(d.id+'/'+d.type+'/'+f.name);
+    if(f.lease===undefined) f.lease=null;
+  });
+  d.dhcp={pools,excl};
   d.gw=d.gw||''; d.dns=d.dns||''; d.routes=d.routes||[];
   d.nat=Object.assign({on:false,outside:''},d.nat||{});
   d.fw=Object.assign({def:'deny',rules:[]},d.fw||{});
@@ -298,6 +336,8 @@ function makeDev(type,x,y,name){
   const T=TYPES[type]; const id='d'+(S.seq++);
   if(!name){ let n=1; while(S.devices.some(d=>d.name===T.base+n)) n++; name=T.base+n; }
   const d=normalize({id,type,name,x,y,ifaces:T.ifs.map(blankIf)});
+  // like a real Cisco router, a new router starts with every interface administratively down
+  if(type==='router') d.ifaces.forEach(f=>f.up=false);
   S.devices.push(d); return d;
 }
 const dev=id=>S.devices.find(d=>d.id===id);
@@ -308,6 +348,9 @@ function addLink(a,ai,b,bi){ if(linkOf(a.id,ai)||linkOf(b.id,bi)) return null; c
 function freeIf(d){ const f=d.ifaces.find(f=>!linkOf(d.id,f.name)); return f?f.name:null; }
 function selDev(){ return sel&&sel.kind==='dev'?dev(sel.id):null; }
 function iface(d,n){ return d.ifaces.find(f=>f.name===n); }
+function upIf(d,ifn){ const f=iface(d,ifn); return !f||f.up!==false; }
+function linkUp(l){ const a=dev(l.a.d), b=dev(l.b.d); return !!(a&&b&&upIf(a,l.a.i)&&upIf(b,l.b.i)); }
+function fullIf(n){ const m=/^(G|Fa)(\d.*)$/.exec(n); return m?(m[1]==='G'?'GigabitEthernet':'FastEthernet')+m[2]:n; }
 
 /* ---------- L2 graph ---------- */
 function buildGraph(){
@@ -316,37 +359,48 @@ function buildGraph(){
   const vl=new Set([1]); S.devices.forEach(d=>{ if(d.type==='switch') d.ifaces.forEach(f=>vl.add(+f.vlan||1)); });
   const key=e=>{ const d=dev(e.d); if(d.type==='switch'){ const f=iface(d,e.i); return d.id+'#v'+((f&&+f.vlan)||1); } return d.id+':'+e.i; };
   for(const l of S.links){
-    const da=dev(l.a.d), db=dev(l.b.d); if(!da||!db) continue;
+    const da=dev(l.a.d), db=dev(l.b.d); if(!da||!db||!linkUp(l)) continue;
     if(da.type==='switch'&&db.type==='switch'){ for(const v of vl) add(da.id+'#v'+v, db.id+'#v'+v); }
     else add(key(l.a),key(l.b));
   }
   return adj;
 }
 const keyDev=k=>k.slice(0,k.search(/[:#]/));
-function bfs(adj,start,visit){
-  const prev=new Map([[start,null]]), q=[start];
+const keyIf=k=>k.slice(k.indexOf(':')+1);
+// Breadth-first walk of one broadcast domain: stops at hosts and router interfaces (they do not forward frames).
+function reach(adj,start){
+  const prev=new Map([[start,null]]), q=[start], ends=[];
   while(q.length){ const k=q.shift();
-    if(k!==start&&k.includes(':')){ const r=visit(k); if(r){ const path=[]; let c=k; while(c){ path.unshift(c); c=prev.get(c);} return {key:k,path}; } continue; }
+    if(k!==start&&k.includes(':')){ ends.push(k); continue; }
     for(const n of (adj.get(k)||[])) if(!prev.has(n)){ prev.set(n,k); q.push(n); }
   }
-  return null;
+  return {prev,ends};
 }
-function segmentMembers(adj,start){ const out=[]; bfs(adj,start,k=>{ out.push(k); return false; }); return out; }
-function findIp(adj,startKey,ip,selfId){
-  const r=bfs(adj,startKey,k=>{ const d=dev(keyDev(k)); if(!d||d.id===selfId) return false; const f=iface(d,k.slice(k.indexOf(':')+1)); const c=f&&ifCfg(f); return c&&c.ip===ip; });
-  if(!r) return null;
-  const devs=[]; r.path.forEach(k=>{ const id=keyDev(k); if(devs[devs.length-1]!==id) devs.push(id); });
-  return {devId:keyDev(r.key), ifn:r.key.slice(r.key.indexOf(':')+1), devs};
+function segmentMembers(adj,start){ return reach(adj,start).ends; }
+function bcastDomain(adj,start){ const {prev}=reach(adj,start); const ids=[]; prev.forEach((v,k)=>{ const id=keyDev(k); if(k!==start&&!ids.includes(id)) ids.push(id); }); return ids; }
+function findAll(adj,startKey,ip,selfId){
+  const {prev,ends}=reach(adj,startKey); const out=[];
+  ends.forEach(k=>{ const d=dev(keyDev(k)); if(!d||d.id===selfId) return; const f=iface(d,keyIf(k)); const c=f&&ifCfg(f);
+    if(c&&c.ip===ip&&f.up!==false){ const devs=[]; let x=k; const path=[]; while(x){ path.unshift(x); x=prev.get(x); } path.forEach(p=>{ const id=keyDev(p); if(devs[devs.length-1]!==id) devs.push(id); }); out.push({devId:d.id,ifn:f.name,devs}); } });
+  return out;
 }
+function findIp(adj,startKey,ip,selfId){ return findAll(adj,startKey,ip,selfId)[0]||null; }
+
+/* ---------- ARP ---------- */
+const ARP=new Map();
+function arpTab(d){ if(!ARP.has(d.id)) ARP.set(d.id,new Map()); return ARP.get(d.id); }
+function arpLearn(d,ifn,ip,mac){ arpTab(d).set(ip,{mac,ifn,t:Date.now()}); }
+function arpValid(d){ const adj=buildGraph(), t=arpTab(d); for(const [ip,e] of [...t]){ if(!findAll(adj,d.id+':'+e.ifn,ip,d.id).some(c=>iface(dev(c.devId),c.ifn).mac===e.mac)) t.delete(ip); } return t; }
+function macOwner(mac){ for(const d of S.devices) for(const f of d.ifaces) if(f.mac===mac) return {d,f}; return null; }
 
 /* ---------- routing ---------- */
-function ifForNext(d,ip){ return d.ifaces.find(f=>{const c=ifCfg(f); return c&&inNet(ip,c.ip,c.p);}); }
+function ifForNext(d,ip){ return d.ifaces.find(f=>{const c=ifCfg(f); return c&&f.up!==false&&inNet(ip,c.ip,c.p);}); }
 function lookup(d,dst){
   let best=null; const consider=c=>{ if(!best||c.p>best.p) best=c; };
-  d.ifaces.forEach(f=>{ const c=ifCfg(f); if(c&&inNet(dst,c.ip,c.p)) consider({p:c.p,f,via:null}); });
+  d.ifaces.forEach(f=>{ const c=ifCfg(f); if(c&&f.up!==false&&inNet(dst,c.ip,c.p)) consider({p:c.p,f,via:null}); });
   if(kindOf(d)==='router'){
     d.routes.forEach(r=>{ const n=ip2i(r.net),p=maskPrefix(r.mask),v=ip2i(r.via); if(n===null||p===null||v===null) return;
-      if(inNet(dst,n,p)){ const f=ifForNext(d,v); consider({p,f,via:v,err:f?null:`il next-hop ${r.via} della rotta ${r.net}/${p} non appartiene a nessuna rete delle sue interfacce.`}); } });
+      if(inNet(dst,n,p)){ const f=ifForNext(d,v); if(f) consider({p,f,via:v}); } });
   } else {
     const g=ip2i(d.gw);
     if(g!==null){ const f=ifForNext(d,g); consider({p:0,f,via:g,err:f?null:`il gateway predefinito ${d.gw} non appartiene alla rete della sua scheda (controlla IP e subnet mask).`}); }
@@ -355,12 +409,12 @@ function lookup(d,dst){
 }
 function routeTable(d){
   const rows=[];
-  d.ifaces.forEach(f=>{ const c=ifCfg(f); if(c) rows.push({code:'C',net:i2ip(netOf(c.ip,c.p)),p:c.p,via:null,ifn:f.name}); });
-  if(kindOf(d)==='router') d.routes.forEach(r=>{ const n=ip2i(r.net),p=maskPrefix(r.mask),v=ip2i(r.via); if(n===null||p===null||v===null) return; const f=ifForNext(d,v); rows.push({code:p===0?'S*':'S',net:i2ip(netOf(n,p)),p,via:r.via,ifn:f?f.name:'—'}); });
+  d.ifaces.forEach(f=>{ const c=ifCfg(f); if(c&&f.up!==false) rows.push({code:'C',net:i2ip(netOf(c.ip,c.p)),p:c.p,via:null,ifn:f.name}); });
+  if(kindOf(d)==='router') d.routes.forEach(r=>{ const n=ip2i(r.net),p=maskPrefix(r.mask),v=ip2i(r.via); if(n===null||p===null||v===null) return; const f=ifForNext(d,v); if(f) rows.push({code:p===0?'S*':'S',net:i2ip(netOf(n,p)),p,via:r.via,ifn:f.name}); });
   else { const g=ip2i(d.gw); if(g!==null){ const f=ifForNext(d,g); rows.push({code:'S*',net:'0.0.0.0',p:0,via:d.gw,ifn:f?f.name:'—'}); } }
   return rows;
 }
-function owns(d,ip){ if(ip===ip2i('127.0.0.1')) return true; return d.ifaces.some(f=>{const c=ifCfg(f); return c&&c.ip===ip;}); }
+function owns(d,ip){ if(ip===ip2i('127.0.0.1')) return true; return d.ifaces.some(f=>{const c=ifCfg(f); return c&&f.up!==false&&c.ip===ip;}); }
 function matchNet(spec,ip){ spec=String(spec||'any').trim().toLowerCase(); if(spec===''||spec==='any'||spec==='*') return true; const [a,b]=spec.split('/'); const n=ip2i(a); if(n===null) return false; const p=b===undefined?32:maskPrefix(b); if(p===null) return false; return inNet(ip,n,p); }
 function fwCheck(d,pkt){
   for(let i=0;i<d.fw.rules.length;i++){ const r=d.fw.rules[i];
@@ -370,16 +424,17 @@ function fwCheck(d,pkt){
 }
 function startTTL(d){ return kindOf(d)==='router'?255:(d.type==='server'?64:128); }
 
+// One direction of a packet: hop by hop, with ARP resolution and the Ethernet frame of every segment.
 function travel(start,dst,proto,opt={}){
   const adj=buildGraph(); const trail=opt.trail||[]; const reply=!!opt.reply;
   const pkt={src:opt.src??null,dst,proto};
   let cur=start, ingress=null, ttl=startTTL(start);
-  const phys=[start.id], hops=[{d:start.id,ifn:null}];
-  const fail=msg=>({ok:false,msg,where:cur.id,phys,hops,pkt,trail});
-  if(!start.ifaces.some(f=>ifCfg(f))) return fail(`${start.name} non ha un indirizzo IP configurato.`);
+  const phys=[start.id], hops=[{d:start.id,ifn:null}], frames=[];
+  const fail=msg=>({ok:false,msg,where:cur.id,phys,hops,pkt,trail,frames});
+  if(!start.ifaces.some(f=>ifCfg(f)&&f.up!==false)) return fail(`${start.name} non ha un indirizzo IP configurato.`);
   for(let step=0;step<40;step++){
     if(reply){ const t=trail.find(t=>t.dev===cur.id&&t.to===pkt.dst&&!t.used); if(t){ t.used=true; pkt.dst=t.from; } }
-    if(owns(cur,pkt.dst)) return {ok:true,dev:cur,ifn:ingress,phys,hops,pkt,trail,ttl};
+    if(owns(cur,pkt.dst)) return {ok:true,dev:cur,ifn:ingress,phys,hops,pkt,trail,ttl,frames};
     const k=kindOf(cur);
     if(step>0&&k!=='router') return fail(`${cur.name} ha ricevuto un pacchetto per ${i2ip(pkt.dst)}, ma non è un router e non lo inoltra.`);
     if(cur.type==='internet'){
@@ -387,18 +442,33 @@ function travel(start,dst,proto,opt={}){
       if(step>0&&isPrivate(pkt.src)) return fail(`Il pacchetto arriva su Internet con mittente privato ${i2ip(pkt.src)}: la risposta non potrebbe mai tornare indietro. Attiva il NAT sul router che si affaccia a Internet.`);
     }
     const r=lookup(cur,pkt.dst);
-    if(!r) return fail(k==='router'?`${cur.name}: nessuna rotta verso ${i2ip(pkt.dst)}. Serve una rotta statica o una rotta di default (0.0.0.0/0).`:`${cur.name}: ${i2ip(pkt.dst)} non è nella sua rete locale e non è configurato un gateway predefinito.`);
+    if(!r) return fail(k==='router'?`${cur.name}: nessuna rotta verso ${i2ip(pkt.dst)}. Serve una rotta statica o una rotta di default (0.0.0.0/0), e l'interfaccia d'uscita deve essere attiva.`:`${cur.name}: ${i2ip(pkt.dst)} non è nella sua rete locale e non è configurato un gateway predefinito.`);
     if(r.err) return fail(`${cur.name}: ${r.err}`);
     if(pkt.src===null) pkt.src=ifCfg(r.f).ip;
     if(cur.type==='firewall'&&step>0&&!reply){ const v=fwCheck(cur,pkt); if(!v.ok) return fail(v.rule?`Bloccato dal firewall ${cur.name}: regola ${v.rule} (deny ${PROTO[v.r.proto]} da ${v.r.src||'any'} a ${v.r.dst||'any'}).`:`Bloccato dal firewall ${cur.name}: nessuna regola consente ${PROTO[proto]} da ${i2ip(pkt.src)} a ${i2ip(pkt.dst)}, quindi si applica la politica predefinita (deny).`); }
     if(step>0){ ttl--; if(ttl<=0) return fail('TTL scaduto.'); }
     if(!reply&&cur.nat.on&&cur.nat.outside===r.f.name&&ingress&&ingress!==r.f.name){ const c=ifCfg(r.f); trail.push({dev:cur.id,name:cur.name,from:pkt.src,to:c.ip}); pkt.src=c.ip; }
     const nh=r.via??pkt.dst;
-    if(!linkOf(cur.id,r.f.name)) return fail(`${cur.name}: l'interfaccia ${r.f.name} non è collegata a nessun cavo.`);
-    const found=findIp(adj,cur.id+':'+r.f.name,nh,cur.id);
-    if(!found) return fail(r.via!=null?`${cur.name}: il ${k==='router'?'next-hop':'gateway'} ${i2ip(nh)} non risponde alla richiesta ARP sulla rete di ${r.f.name}. Nessun dispositivo raggiungibile ha quell'indirizzo.`:`${cur.name}: nessun dispositivo con indirizzo ${i2ip(nh)} risponde all'ARP sulla rete di ${r.f.name} (indirizzo sbagliato, cavo mancante o VLAN diversa).`);
+    const lk=linkOf(cur.id,r.f.name);
+    if(!lk) return fail(`${cur.name}: l'interfaccia ${r.f.name} non è collegata a nessun cavo.`);
+    if(!linkUp(lk)) return fail(`${cur.name}: il collegamento di ${r.f.name} è giù, perché l'interfaccia dall'altra parte del cavo è spenta.`);
+    const key=cur.id+':'+r.f.name;
+    const cands=findAll(adj,key,nh,cur.id);
+    const myIp=ifCfg(r.f).ip;
+    const cached=arpTab(cur).get(nh);
+    if(!cands.length){
+      frames.push({from:cur.id,fromIf:r.f.name,to:null,via:[],smac:r.f.mac,dmac:null,sip:pkt.src,dip:pkt.dst,arp:{ip:nh,domain:bcastDomain(adj,key),answered:null}});
+      return fail(r.via!=null?`${cur.name}: il ${k==='router'?'next-hop':'gateway'} ${i2ip(nh)} non risponde alla richiesta ARP sulla rete di ${r.f.name}. Nessun dispositivo raggiungibile ha quell'indirizzo.`:`${cur.name}: nessun dispositivo con indirizzo ${i2ip(nh)} risponde all'ARP sulla rete di ${r.f.name} (indirizzo sbagliato, mask sbagliata, cavo mancante o VLAN diversa).`);
+    }
+    // two devices with the same IP: who answers changes from one packet to the next
+    const found=cands.length>1?cands[Math.floor(Math.random()*cands.length)]:cands[0];
+    const fd=dev(found.devId), ff=iface(fd,found.ifn);
+    let arp=null;
+    if(!cached||cached.mac!==ff.mac){ arp={ip:nh,domain:bcastDomain(adj,key),answered:fd.id,refresh:!!cached}; arpLearn(fd,ff.name,myIp,r.f.mac); }
+    arpLearn(cur,r.f.name,nh,ff.mac);
+    frames.push({from:cur.id,fromIf:r.f.name,to:fd.id,toIf:ff.name,via:found.devs.slice(1,-1),smac:r.f.mac,dmac:ff.mac,sip:pkt.src,dip:pkt.dst,arp});
     found.devs.slice(1).forEach(id=>{ if(phys[phys.length-1]!==id) phys.push(id); });
-    cur=dev(found.devId); ingress=found.ifn; hops.push({d:cur.id,ifn:ingress});
+    cur=fd; ingress=found.ifn; hops.push({d:cur.id,ifn:ingress});
   }
   return fail('Loop di instradamento: il pacchetto gira in tondo tra i router finché il TTL si esaurisce.');
 }
@@ -411,21 +481,35 @@ function roundTrip(src,dstIp,proto){
 }
 
 /* ---------- DHCP ---------- */
+function poolFor(r,f){ const c=ifCfg(f); if(!c) return null; return r.dhcp.pools.find(p=>{ const n=ip2i(p.net), q=maskPrefix(p.mask); return n!==null&&q&&inNet(c.ip,n,q); })||null; }
+function isExcluded(r,ip){ return r.dhcp.excl.some(e=>{ const a=ip2i(e.from), b=(e.to&&String(e.to).trim())?ip2i(e.to):a; return a!==null&&b!==null&&ip>=Math.min(a,b)&&ip<=Math.max(a,b); }); }
+function leasesOf(srv){ const out=[]; S.devices.forEach(h=>h.ifaces.forEach(g=>{ if(g.lease&&g.lease.srv===srv&&ifCfg(g)) out.push({dev:h,f:g}); })); return out; }
+function dhcpClear(d,f){ f.ip='';f.mask='';d.gw='';d.dns='';f.lease=null; }
+function apipa(d,f){ f.ip=`169.254.${1+Math.floor(Math.random()*254)}.${1+Math.floor(Math.random()*254)}`; f.mask='255.255.0.0'; d.gw=''; d.dns=''; f.lease=null; }
 function dhcpRenew(d,f){
-  if(!linkOf(d.id,f.name)){ f.ip='';f.mask='';d.gw='';d.dns=''; return {ok:false,msg:`La scheda ${f.name} non è collegata: nessuna risposta DHCP.`}; }
-  const adj=buildGraph(); let pool=null;
+  if(!linkOf(d.id,f.name)){ dhcpClear(d,f); return {ok:false,msg:`La scheda ${f.name} non è collegata: nessuna risposta DHCP.`}; }
+  const adj=buildGraph(); let offer=null, noPool=null;
   for(const k of segmentMembers(adj,d.id+':'+f.name)){
-    const md=dev(keyDev(k)), mf=iface(md,k.slice(k.indexOf(':')+1)); if(!md||!mf) continue;
-    if(kindOf(md)==='router'&&mf.dhcp.on&&ifCfg(mf)){ pool={start:mf.dhcp.start,end:mf.dhcp.end,mask:mf.mask,gw:mf.ip,dns:mf.dhcp.dns,srv:`${md.name} (${mf.name})`}; break; }
-    if(md.type==='server'&&md.svc.dhcp.on&&ifCfg(mf)){ const s=md.svc.dhcp; pool={start:s.start,end:s.end,mask:s.mask,gw:s.gw,dns:s.dns,srv:md.name}; break; }
+    const md=dev(keyDev(k)), mf=iface(md,keyIf(k)); if(!md||!mf) continue;
+    if(kindOf(md)==='router'&&mf.up!==false&&ifCfg(mf)&&md.dhcp.pools.length){
+      const pool=poolFor(md,mf); if(!pool){ noPool=md; continue; }
+      const q=maskPrefix(pool.mask), n=netOf(ip2i(pool.net),q);
+      offer={srv:md.id+'/'+pool.name, srvName:`${md.name} (pool ${pool.name})`, srvIp:mf.ip, lo:n+1, hi:bcastOf(n,q)-1,
+        excl:ip=>isExcluded(md,ip)||md.ifaces.some(g=>{const c=ifCfg(g); return c&&c.ip===ip;}), mask:i2ip(pmask(q)), gw:pool.gw, dns:pool.dns}; break; }
+    if(md.type==='server'&&md.svc.dhcp.on&&ifCfg(mf)){ const s=md.svc.dhcp, a=ip2i(s.start), b=ip2i(s.end);
+      if(a===null||b===null||a>b||maskPrefix(s.mask)===null) return {ok:false,msg:`Il server DHCP ${md.name} ha un intervallo o una mask non validi.`};
+      offer={srv:md.id+'/srv', srvName:md.name, srvIp:mf.ip, lo:a, hi:b, excl:ip=>ip===ifCfg(mf).ip, mask:s.mask, gw:s.gw, dns:s.dns}; break; }
   }
-  if(!pool){ f.ip=`169.254.${1+Math.floor(Math.random()*254)}.${1+Math.floor(Math.random()*254)}`; f.mask='255.255.0.0'; d.gw=''; d.dns='';
-    return {ok:false,msg:`Nessun server DHCP ha risposto sulla rete di ${d.name}. Windows assegna un indirizzo APIPA ${f.ip}: con questo indirizzo non si esce dalla rete locale.`}; }
-  const a=ip2i(pool.start), b=ip2i(pool.end);
-  if(a===null||b===null||a>b) return {ok:false,msg:`Il server DHCP ${pool.srv} ha un intervallo di indirizzi non valido.`};
-  const used=new Set(); S.devices.forEach(x=>x.ifaces.forEach(g=>{ if(g!==f){ const c=ifCfg(g); if(c) used.add(c.ip);} }));
-  for(let n=a;n<=b;n++) if(!used.has(n)){ f.ip=i2ip(n); f.mask=pool.mask; d.gw=pool.gw||''; d.dns=pool.dns||''; return {ok:true,srv:pool.srv,msg:`${d.name} ha ottenuto ${f.ip} da ${pool.srv}.`}; }
-  return {ok:false,msg:`Il pool DHCP di ${pool.srv} è esaurito: tutti gli indirizzi da ${pool.start} a ${pool.end} sono in uso.`};
+  if(!offer){ apipa(d,f);
+    return {ok:false,msg:noPool?`Il router ${noPool.name} ha dei pool DHCP, ma nessuno è nella rete della sua interfaccia verso ${d.name}: controlla la "network" del pool. Windows assegna un indirizzo APIPA ${f.ip}.`:`Nessun server DHCP ha risposto sulla rete di ${d.name}. Windows assegna un indirizzo APIPA ${f.ip}: con questo indirizzo non si esce dalla rete locale.`}; }
+  const taken=new Set(leasesOf(offer.srv).filter(x=>x.f!==f).map(x=>ifCfg(x.f).ip));
+  const give=n=>{ f.ip=i2ip(n); f.mask=offer.mask; d.gw=offer.gw||''; d.dns=offer.dns||''; f.lease={srv:offer.srv,srvIp:offer.srvIp,srvName:offer.srvName};
+    return {ok:true,srv:offer.srvName,msg:`${d.name} ha ottenuto ${f.ip} da ${offer.srvName}.`+(offer.gw?'':' Attenzione: il server non ha comunicato nessun gateway.')}; };
+  const cur=ifCfg(f);
+  if(f.lease&&f.lease.srv===offer.srv&&cur&&cur.ip>=offer.lo&&cur.ip<=offer.hi&&!offer.excl(cur.ip)&&!taken.has(cur.ip)) return give(cur.ip);
+  for(let n=offer.lo;n<=offer.hi;n++) if(!offer.excl(n)&&!taken.has(n)) return give(n);
+  apipa(d,f);
+  return {ok:false,msg:`Il pool DHCP di ${offer.srvName} è esaurito: nessun indirizzo libero da assegnare. ${d.name} resta con l'indirizzo APIPA ${f.ip}.`};
 }
 
 /* ---------- name resolution ---------- */
@@ -466,68 +550,274 @@ function animPath(ids,color){
     requestAnimationFrame(f);
   });
 }
+function flashArp(fr){
+  return new Promise(res=>{
+    if(reduceMotion){ res(); return; }
+    const src=dev(fr.from);
+    fr.arp.domain.forEach(id=>{ const d=dev(id); if(!d) return; const c=document.createElementNS(NS,'circle'); c.setAttribute('cx',d.x); c.setAttribute('cy',d.y); c.setAttribute('r',10); c.setAttribute('class','arpring'+(id===fr.arp.answered?' ans':'')); animG.appendChild(c); setTimeout(()=>c.remove(),1100); });
+    if(src){ const t=document.createElementNS(NS,'text'); t.setAttribute('x',Math.min(VB.x+VB.w-110,Math.max(VB.x+110,src.x))); t.setAttribute('y',Math.max(VB.y+20,src.y-40)); t.setAttribute('text-anchor','middle'); t.setAttribute('class','arplbl'); t.textContent=`ARP: chi ha ${i2ip(fr.arp.ip)}?`; animG.appendChild(t); setTimeout(()=>t.remove(),1200); }
+    setTimeout(res,750);
+  });
+}
+async function playDir(t,col){
+  for(const fr of t.frames){ if(fr.arp) await flashArp(fr); if(fr.to) await animPath([fr.from,...fr.via,fr.to],col); }
+  if(!t.ok){ burst(t.where,false); return false; }
+  return true;
+}
 function playTrip(rt,proto){
   const col=PCOL[proto]||'var(--p-icmp)';
   queue(async()=>{
-    await animPath(rt.fwd.phys,col);
-    if(!rt.fwd.ok){ burst(rt.fwd.where,false); return; }
-    if(rt.back){ await animPath(rt.back.phys,col); if(!rt.back.ok){ burst(rt.back.where,false); return; } burst(rt.back.dev.id,true); }
+    if(!await playDir(rt.fwd,col)) return;
+    if(rt.back){ if(await playDir(rt.back,col)) burst(rt.back.dev.id,true); }
   });
 }
 
 /* ---------- terminal ---------- */
-function prompt(d){ return kindOf(d)==='router'?d.name+'#':'C:\\>'; }
+const CLI={};
+function cliSt(d){ return CLI[d.id]||(CLI[d.id]={mode:'user',ifn:null,pool:null}); }
+function prompt(d){ if(kindOf(d)!=='router') return 'C:\\>'; const s=cliSt(d); return d.name+({user:'>',priv:'#',conf:'(config)#',if:'(config-if)#',dhcp:'(dhcp-config)#'}[s.mode]||'>'); }
+function findIfByName(d,s){
+  s=String(s||'').toLowerCase().replace(/\s+/g,''); if(!s) return null;
+  for(const f of d.ifaces){
+    const full=fullIf(f.name).toLowerCase(); if(s===f.name.toLowerCase()||s===full) return f;
+    const m=/^([a-z]+)([\d/]+)$/.exec(full), m2=/^([a-z]+)([\d/]+)$/.exec(s);
+    if(m&&m2&&m[2]===m2[2]&&m[1].startsWith(m2[1])) return f;
+  }
+  return null;
+}
+function ifStatus(d,f){
+  if(f.up===false) return ['administratively down','down'];
+  const l=linkOf(d.id,f.name); if(!l||!linkUp(l)) return ['down','down'];
+  return ['up','up'];
+}
+// Cisco IOS-style configuration. Returns true when handled, false to fall through to exec commands, {redo} for "do".
+function ios(d,line,p){
+  const st=cliSt(d); const w=line.trim().split(/\s+/).filter(Boolean); if(!w.length) return true;
+  const W=w.map(x=>x.toLowerCase());
+  const k=(i,full,min=1)=>W[i]!==undefined&&W[i].length>=min&&full.startsWith(W[i]);
+  const bad=hint=>{ p('% Invalid input detected.','err'); if(hint) p('→ '+hint,'note'); return true; };
+  const ipOk=x=>ip2i(x||'')!==null;
+  let changed=false; const done=()=>{ if(changed){ save(); render(); } return true; };
+  const toConf=()=>{ st.mode='conf'; st.ifn=null; st.pool=null; };
+  const inConf=['conf','if','dhcp'].includes(st.mode);
+  if(!inConf){
+    if(k(0,'enable',2)){ st.mode='priv'; return true; }
+    if(k(0,'disable',4)){ st.mode='user'; return true; }
+    if(k(0,'exit',2)||k(0,'logout',3)){ st.mode='user'; return true; }
+    if(k(0,'configure',4)){ if(st.mode==='user') return bad('Prima entra in modalità privilegiata con enable.'); if(W[1]&&!k(1,'terminal',1)) return bad('Si scrive configure terminal (abbreviato: conf t).'); st.mode='conf'; p('Enter configuration commands, one per line.  End with CNTL/Z.','dim'); return true; }
+    if(k(0,'write',2)||(k(0,'copy',2)&&k(1,'running-config',3))){ if(st.mode==='user') return bad('Serve la modalità privilegiata: scrivi enable.'); p('Building configuration...'); p('[OK]','ok'); return true; }
+    if(k(0,'show',2)&&k(1,'running-config',3)&&st.mode==='user') return bad('show running-config richiede la modalità privilegiata: scrivi enable.');
+    if(['interface','hostname','ip','no','router'].some(x=>k(0,x,2))) return bad(st.mode==='user'?'Per configurare scrivi enable e poi configure terminal.':'Per configurare scrivi prima configure terminal.');
+    return false;
+  }
+  if(k(0,'do',2)) return {redo:w.slice(1).join(' ')};
+  if(k(0,'end',3)){ st.mode='priv'; st.ifn=null; st.pool=null; return true; }
+  if(k(0,'exit',2)){ if(st.mode==='conf') st.mode='priv'; else toConf(); return true; }
+  const no=k(0,'no',2), o=no?1:0;
+  const ko=(i,full,min)=>k(i+o,full,min);
+  if(st.mode==='if'){
+    const f=iface(d,st.ifn), nm=fullIf(f.name);
+    if(ko(0,'shutdown',2)){
+      const was=f.up!==false; f.up=no; changed=true;
+      if(no&&!was){ p(`%LINK-5-CHANGED: Interface ${nm}, changed state to up`,'dim'); if(ifStatus(d,f)[1]==='up') p(`%LINEPROTO-5-UPDOWN: Line protocol on Interface ${nm}, changed state to up`,'dim'); }
+      if(!no&&was){ p(`%LINK-5-CHANGED: Interface ${nm}, changed state to administratively down`,'dim'); p(`%LINEPROTO-5-UPDOWN: Line protocol on Interface ${nm}, changed state to down`,'dim'); }
+      return done();
+    }
+    if(ko(0,'ip',2)&&ko(1,'address',3)){
+      if(no){ f.ip=''; f.mask=''; changed=true; return done(); }
+      const a=w[2], m=w[3]||''; const ip=ip2i(a||''), q=maskPrefix(m);
+      if(ip===null||q===null||q===0||!m.includes('.')) return bad('Sintassi: ip address <indirizzo> <subnet mask>, per esempio ip address 192.168.10.1 255.255.255.0');
+      if(q<31&&(ip===netOf(ip,q)||ip===bcastOf(ip,q))) return bad(`${a} è l'indirizzo di rete o di broadcast di ${i2ip(netOf(ip,q))}/${q}: non si può assegnare a un'interfaccia.`);
+      const clash=d.ifaces.find(g=>{ const c=g!==f&&ifCfg(g); return c&&inNet(ip,c.ip,Math.min(q,c.p)); });
+      if(clash){ p(`% ${i2ip(netOf(ip,q))} overlaps with ${fullIf(clash.name)}`,'err'); p('→ Ogni interfaccia di un router deve stare in una rete diversa.','note'); return true; }
+      f.ip=a; f.mask=m; changed=true; return done();
+    }
+    if(ko(0,'ip',2)&&ko(1,'nat',3)&&W[3+o]===undefined){
+      if(ko(2,'outside',3)){ if(no){ if(d.nat.outside===f.name){ d.nat.outside=''; d.nat.on=false; } } else { d.nat.outside=f.name; d.nat.on=true; } changed=true; return done(); }
+      if(ko(2,'inside',3)) return true;
+      return bad('Sintassi: ip nat inside oppure ip nat outside');
+    }
+    if(ko(0,'description',3)||ko(0,'duplex',3)||ko(0,'speed',3)) return true;
+  }
+  if(st.mode==='dhcp'){
+    const pl=d.dhcp.pools.find(x=>x.name===st.pool);
+    if(pl&&ko(0,'network',3)){
+      if(no){ pl.net=''; pl.mask=''; changed=true; return done(); }
+      const n=ip2i(w[1]||''), q=maskPrefix(w[2]||'');
+      if(n===null||q===null||q===0) return bad('Sintassi: network <rete> <subnet mask>, per esempio network 192.168.10.0 255.255.255.0');
+      pl.net=i2ip(netOf(n,q)); pl.mask=i2ip(pmask(q)); changed=true; return done();
+    }
+    if(pl&&ko(0,'default-router',3)){ if(no){ pl.gw=''; changed=true; return done(); } if(!ipOk(w[1])) return bad('Sintassi: default-router <indirizzo del gateway>'); pl.gw=w[1]; changed=true; return done(); }
+    if(pl&&ko(0,'dns-server',3)){ if(no){ pl.dns=''; changed=true; return done(); } if(!ipOk(w[1])) return bad('Sintassi: dns-server <indirizzo>'); pl.dns=w[1]; changed=true; return done(); }
+    if(ko(0,'lease',2)||ko(0,'domain-name',3)) return true;
+  }
+  // global configuration commands (also accepted from sub-modes, as on a real router)
+  if(!no&&k(0,'hostname',3)){
+    const nm=w[1]; if(!nm) return bad('Sintassi: hostname <nome>');
+    if(S.devices.some(x=>x!==d&&x.name===nm)) return bad(`Esiste già un dispositivo chiamato ${nm}.`);
+    d.name=nm; toConf(); changed=true; done(); renderInsp(); return true;
+  }
+  if(!no&&k(0,'interface',3)){
+    const f=findIfByName(d,w.slice(1).join(''));
+    if(!f) return bad(`Interfacce di ${d.name}: ${d.ifaces.map(x=>fullIf(x.name)).join(', ')}`);
+    st.mode='if'; st.ifn=f.name; st.pool=null; return true;
+  }
+  if(ko(0,'ip',2)&&ko(1,'route',3)){
+    const [n,m,v]=w.slice(2+o);
+    if(!ipOk(n)||maskPrefix(m||'')===null||!(m||'').includes('.')||!ipOk(v)) return bad('Sintassi: ip route <rete> <subnet mask> <next-hop>, per esempio ip route 0.0.0.0 0.0.0.0 82.0.0.1');
+    if(no){ const i=d.routes.findIndex(r=>r.net===n&&r.mask===m&&r.via===v); if(i>=0){ d.routes.splice(i,1); changed=true; } else p('%No matching route to delete','err'); }
+    else if(!d.routes.some(r=>r.net===n&&r.mask===m&&r.via===v)){ d.routes.push({net:n,mask:m,via:v}); changed=true; }
+    toConf(); return done();
+  }
+  if(ko(0,'ip',2)&&ko(1,'dhcp',2)&&ko(2,'excluded-address',3)){
+    const a=w[3+o], b=w[4+o];
+    if(!ipOk(a)||(b&&!ipOk(b))) return bad('Sintassi: ip dhcp excluded-address <primo indirizzo> [<ultimo indirizzo>]');
+    if(no){ const i=d.dhcp.excl.findIndex(e=>e.from===a&&(e.to||'')===(b||'')); if(i>=0){ d.dhcp.excl.splice(i,1); changed=true; } }
+    else { d.dhcp.excl.push({from:a,to:b||''}); changed=true; }
+    toConf(); return done();
+  }
+  if(ko(0,'ip',2)&&ko(1,'dhcp',2)&&ko(2,'pool',1)){
+    const name=w[3+o]; if(!name) return bad('Sintassi: ip dhcp pool <nome>');
+    if(no){ d.dhcp.pools=d.dhcp.pools.filter(x=>x.name!==name); changed=true; toConf(); return done(); }
+    if(!d.dhcp.pools.find(x=>x.name===name)){ d.dhcp.pools.push({name,net:'',mask:'',gw:'',dns:''}); changed=true; }
+    st.mode='dhcp'; st.pool=name; st.ifn=null; return done();
+  }
+  if(ko(0,'ip',2)&&ko(1,'nat',3)&&ko(2,'inside',3)&&ko(3,'source',2)){
+    if(no){ d.nat.on=false; changed=true; toConf(); return done(); }
+    const ii=W.findIndex((x,i)=>i>3&&x.length>=3&&'interface'.startsWith(x));
+    const f=ii>0?findIfByName(d,w.slice(ii+1).filter(x=>!/^ov/i.test(x)).join('')):null;
+    if(f) d.nat.outside=f.name; d.nat.on=true; changed=true; toConf(); return done();
+  }
+  if(k(0,'access-list',3)){ p('(ReteLab: le access-list non sono simulate; il NAT traduce tutto il traffico interno.)','dim'); toConf(); return true; }
+  if(k(0,'ip',2)&&k(1,'routing',3)) return true;
+  if(k(0,'show',2)||k(0,'ping',2)||k(0,'traceroute',3)||k(0,'tracert',3)) return bad(`In modalità configurazione scrivi "do ${line.trim()}", oppure torna indietro con end.`);
+  return bad({if:'Comandi di interfaccia: ip address, shutdown, no shutdown, ip nat outside, exit.',dhcp:'Comandi del pool: network, default-router, dns-server, exit.',conf:'Scrivi help per l\'elenco dei comandi.'}[st.mode]);
+}
+function runningConfig(d){
+  const L=['Building configuration...','','Current configuration:','!','hostname '+d.name,'!'];
+  d.dhcp.excl.forEach(e=>L.push(`ip dhcp excluded-address ${e.from}${e.to&&e.to!==e.from?' '+e.to:''}`));
+  if(d.dhcp.excl.length) L.push('!');
+  d.dhcp.pools.forEach(pl=>{ L.push(`ip dhcp pool ${pl.name}`); if(pl.net) L.push(` network ${pl.net} ${pl.mask}`); if(pl.gw) L.push(` default-router ${pl.gw}`); if(pl.dns) L.push(` dns-server ${pl.dns}`); L.push('!'); });
+  d.ifaces.forEach(f=>{ L.push('interface '+fullIf(f.name)); L.push(f.ip&&f.mask?` ip address ${f.ip} ${f.mask}`:' no ip address'); if(d.nat.on&&d.nat.outside) L.push(f.name===d.nat.outside?' ip nat outside':' ip nat inside'); if(f.up===false) L.push(' shutdown'); L.push('!'); });
+  if(d.nat.on&&d.nat.outside) L.push(`ip nat inside source list 1 interface ${fullIf(d.nat.outside)} overload`,'access-list 1 permit any','!');
+  d.routes.forEach(r=>L.push(`ip route ${r.net} ${r.mask} ${r.via}`));
+  if(d.type==='firewall'&&d.fw.rules.length){ L.push('!','! Regole del firewall (si modificano dal pannello Regole)'); d.fw.rules.forEach((r,i)=>L.push(`!  ${i+1}. ${r.action} ${r.proto} ${r.src||'any'} -> ${r.dst||'any'}`)); L.push(`!  politica predefinita: ${d.fw.def}`); }
+  L.push('!','end'); return L;
+}
 function runCmd(d,line){
   const out=[]; const p=(t,c='')=>out.push([t,c]); const anims=[];
-  const a=line.trim().split(/\s+/); const c=(a[0]||'').toLowerCase(); const isR=kindOf(d)==='router';
-  const why=m=>p('→ Perché: '+m,'note');
+  const isR=kindOf(d)==='router';
+  const why=m=>{ if(!S.exercise) p('→ Perché: '+m,'note'); };
+  if(isR){ const h=ios(d,line,p); if(h===true) return {out,anims}; if(h&&h.redo!==undefined) line=h.redo; }
+  const a=line.trim().split(/\s+/); const c=(a[0]||'').toLowerCase();
   if(!c) return {out,anims};
   if(c==='help'||c==='?'){
-    p('Comandi disponibili:','dim');
-    if(!isR){ p('  ipconfig            mostra indirizzo, maschera, gateway, DNS'); p('  ipconfig /renew     richiede un indirizzo al server DHCP'); p('  ipconfig /release   rilascia l\'indirizzo DHCP'); }
-    else { p('  show ip route       tabella di routing'); p('  show ip interface brief   stato delle interfacce'); p('  show nat            configurazione NAT'); }
-    p('  ping <ip|nome>      verifica la raggiungibilità (ICMP)'); p('  tracert <ip|nome>   mostra i router attraversati');
-    if(!isR){ p('  nslookup <nome>     interroga il server DNS'); p('  http <ip|nome>      scarica una pagina web'); }
-    p('  cls                 pulisce lo schermo');
+    if(!isR){
+      p('Comandi disponibili:','dim');
+      p('  ipconfig            mostra indirizzo, maschera, gateway, DNS'); p('  ipconfig /all       aggiunge indirizzo MAC e server DHCP');
+      p('  ipconfig /renew     richiede un indirizzo al server DHCP'); p('  ipconfig /release   rilascia l\'indirizzo DHCP');
+      p('  arp -a              tabella ARP (IP → MAC)'); p('  arp -d              svuota la tabella ARP');
+      p('  ping <ip|nome>      verifica la raggiungibilità (ICMP)'); p('  tracert <ip|nome>   mostra i router attraversati');
+      p('  nslookup <nome>     interroga il server DNS'); p('  http <ip|nome>      scarica una pagina web'); p('  cls                 pulisce lo schermo');
+    } else {
+      p('Modalità: R1> utente · R1# privilegiata (enable) · R1(config)# configurazione (configure terminal)','dim');
+      p('Verifica (R1> o R1#):','dim');
+      p('  show ip interface brief    show interfaces    show ip route'); p('  show arp    show ip dhcp binding    show ip dhcp pool'); p('  show running-config (solo R1#)    ping <ip>    traceroute <ip>');
+      p('Configurazione (dopo configure terminal):','dim');
+      p('  hostname <nome>'); p('  interface <nome>                 es. interface g0/0'); p('    ip address <ip> <mask>    no shutdown    shutdown    ip nat outside');
+      p('  ip route <rete> <mask> <next-hop>'); p('  ip dhcp excluded-address <primo> [<ultimo>]'); p('  ip dhcp pool <nome>'); p('    network <rete> <mask>    default-router <ip>    dns-server <ip>');
+      p('  exit    end    do <comando>    no <comando> annulla un comando');
+    }
   }
   else if(c==='cls'||c==='clear'){ term[d.id]=[]; return {out:[],anims,cleared:true}; }
   else if(c==='ipconfig'&&!isR){
-    const f=d.ifaces[0]; const sub=(a[1]||'').toLowerCase();
+    const f=d.ifaces[0]; const sub=(a[1]||'').toLowerCase(); const all=sub==='/all';
     if(sub==='/renew'){ if(f.mode!=='dhcp'){ p('La scheda ha un indirizzo statico: imposta "DHCP" nella configurazione per usare /renew.','err'); } else { const r=dhcpRenew(d,f); p(r.msg,r.ok?'ok':'err'); save(); render(); } }
-    else if(sub==='/release'){ if(f.mode==='dhcp'){ f.ip='';f.mask='';d.gw='';d.dns=''; p('Indirizzo rilasciato.','ok'); save(); render(); } else p('La scheda ha un indirizzo statico.','err'); }
-    p(''); p('Configurazione IP di Windows'); p(''); p(`Scheda Ethernet ${f.name}:`);
+    else if(sub==='/release'){ if(f.mode==='dhcp'){ dhcpClear(d,f); p('Indirizzo rilasciato.','ok'); save(); render(); } else p('La scheda ha un indirizzo statico.','err'); }
+    const c2=ifCfg(f); const dup=c2&&linkOf(d.id,f.name)&&findAll(buildGraph(),d.id+':'+f.name,c2.ip,d.id).length>0;
+    p(''); p('Configurazione IP di Windows'); p(''); if(all){ p(`   Nome host . . . . . . . . . . . . : ${d.name}`); p(''); } p(`Scheda Ethernet ${f.name}:`); p('');
     if(!linkOf(d.id,f.name)) p('   Stato supporto . . . . . . . . . . : Supporto disconnesso');
+    if(all){ p('   Descrizione . . . . . . . . . . . : Scheda Ethernet Gigabit'); p(`   Indirizzo fisico. . . . . . . . . : ${macWin(f.mac)}`); }
     p(`   DHCP abilitato . . . . . . . . . . : ${f.mode==='dhcp'?'Sì':'No'}`);
-    p(`   Indirizzo IPv4 . . . . . . . . . . : ${f.ip||'—'}`); p(`   Subnet mask. . . . . . . . . . . . : ${f.mask||'—'}`);
-    p(`   Gateway predefinito. . . . . . . . : ${d.gw||'—'}`); p(`   Server DNS . . . . . . . . . . . . : ${d.dns||'—'}`);
+    p(`   Indirizzo IPv4 . . . . . . . . . . : ${f.ip?f.ip+(dup?'(Duplicato)':''):'—'}`,dup?'err':''); p(`   Subnet mask. . . . . . . . . . . . : ${f.mask||'—'}`);
+    p(`   Gateway predefinito. . . . . . . . : ${d.gw||'—'}`);
+    if(all&&f.mode==='dhcp') p(`   Server DHCP. . . . . . . . . . . . : ${f.lease?f.lease.srvIp:'—'}`);
+    p(`   Server DNS . . . . . . . . . . . . : ${d.dns||'—'}`);
   }
-  else if(c==='show'&&isR){
+  else if(c==='arp'&&!isR){
+    const sub=(a[1]||'').toLowerCase(); const f=d.ifaces[0];
+    if(sub==='-d'||sub==='/d'){ arpTab(d).clear(); p('Voci ARP eliminate.','ok'); }
+    else if(sub==='-a'||sub==='/a'||sub==='-g'){
+      const t=arpValid(d); const c2=ifCfg(f);
+      if(!t.size||!c2){ p('Nessuna voce ARP trovata.'); }
+      else { p(''); p(`Interfaccia: ${f.ip} --- 0x4`); p('  Indirizzo Internet    Indirizzo fisico      Tipo'); [...t].sort((x,y)=>x[0]-y[0]).forEach(([ip,e])=>p(`  ${i2ip(ip).padEnd(22)}${macWin(e.mac).toLowerCase().padEnd(22)}dinamico`)); }
+    }
+    else p('Uso: arp -a (mostra la tabella) · arp -d (la svuota)','err');
+  }
+  else if((c==='show'||c==='sh'||c==='sho')&&isR){
     const s=a.slice(1).join(' ').toLowerCase();
-    if(s.startsWith('ip route')){ p('Codici: C - connessa, S - statica, * - rotta di default'); p('');
+    if(/^ip\s+ro/.test(s)){ p('Codes: C - connected, S - static, * - candidate default'); p('');
       const rows=routeTable(d); if(!rows.length) p('(tabella vuota)','dim');
-      rows.forEach(r=>p(r.code==='C'?`C    ${r.net}/${r.p} è direttamente connessa, ${r.ifn}`:`${r.code.padEnd(5)}${r.net}/${r.p} via ${r.via}, ${r.ifn}`)); }
-    else if(s.startsWith('ip int')){ p('Interfaccia   Indirizzo IP        Stato'); d.ifaces.forEach(f=>{ const c2=ifCfg(f); p(`${f.name.padEnd(14)}${(c2?f.ip+'/'+c2.p:'non assegnato').padEnd(20)}${linkOf(d.id,f.name)?'up':'down'}`); }); }
-    else if(s.startsWith('nat')){ p(d.nat.on?`NAT attivo. Interfaccia esterna: ${d.nat.outside||'(non scelta)'}. Tutte le altre interfacce sono interne.`:'NAT non attivo.'); }
-    else p('Comando non riconosciuto. Prova: show ip route','err');
+      rows.forEach(r=>p(r.code==='C'?`C    ${r.net}/${r.p} is directly connected, ${fullIf(r.ifn)}`:`${r.code.padEnd(5)}${r.net}/${r.p} [1/0] via ${r.via}`)); }
+    else if(/^ip\s+int\w*\s+br/.test(s)){
+      p('Interface              IP-Address      OK? Method Status                Protocol');
+      d.ifaces.forEach(f=>{ const [st,pr]=ifStatus(d,f); p(`${fullIf(f.name).padEnd(23)}${(f.ip||'unassigned').padEnd(16)}YES ${(f.ip?'manual':'unset').padEnd(7)}${st.padEnd(22)}${pr}`); });
+    }
+    else if(/^int/.test(s)){
+      const arg=a.slice(2).join(''); const list=arg?[findIfByName(d,arg)].filter(Boolean):d.ifaces;
+      if(arg&&!list.length) p('% Invalid input detected.','err');
+      list.forEach(f=>{ const [st,pr]=ifStatus(d,f); const c2=ifCfg(f);
+        p(`${fullIf(f.name)} is ${st}, line protocol is ${pr}`,st==='up'&&pr==='up'?'':'dim');
+        p(`  Hardware is ${/^G/.test(f.name)?'GigabitEthernet':'Ethernet'}, address is ${macCisco(f.mac)} (bia ${macCisco(f.mac)})`);
+        p(c2?`  Internet address is ${f.ip}/${c2.p}`:'  No internet address'); });
+    }
+    else if(/^(ip\s+)?arp/.test(s)){
+      p('Protocol  Address          Age (min)  Hardware Addr   Type   Interface');
+      const rows=[]; d.ifaces.forEach(f=>{ const c2=ifCfg(f); if(c2&&f.up!==false) rows.push([c2.ip,'-',f.mac,f.name]); });
+      arpValid(d).forEach((e,ip)=>{ if(!rows.some(r=>r[0]===ip)) rows.push([ip,String(Math.floor((Date.now()-e.t)/60000)),e.mac,e.ifn]); });
+      rows.sort((x,y)=>x[0]-y[0]).forEach(([ip,age,mac,ifn])=>p(`Internet  ${i2ip(ip).padEnd(17)}${age.padStart(9)}   ${macCisco(mac)}  ARPA   ${fullIf(ifn)}`));
+    }
+    else if(/^run/.test(s)){ runningConfig(d).forEach(l=>p(l)); }
+    else if(/^ip\s+dhcp\s+b/.test(s)){
+      p('IP address       Hardware address    Lease expiration    Type');
+      let n=0; d.dhcp.pools.forEach(pl=>leasesOf(d.id+'/'+pl.name).forEach(({f})=>{ n++; p(`${f.ip.padEnd(17)}${macCisco(f.mac).padEnd(20)}${'Infinite'.padEnd(20)}Automatic`); }));
+      if(!n) p('(nessun indirizzo assegnato)','dim');
+    }
+    else if(/^ip\s+dhcp\s+p/.test(s)){
+      if(!d.dhcp.pools.length) p('(nessun pool configurato)','dim');
+      d.dhcp.pools.forEach(pl=>{ p(`Pool ${pl.name} :`); p(` Network            : ${pl.net?pl.net+' '+pl.mask:'(non impostata)'}`); p(` Default router     : ${pl.gw||'(nessuno)'}`); p(` DNS server         : ${pl.dns||'(nessuno)'}`); p(` Leased addresses   : ${leasesOf(d.id+'/'+pl.name).length}`); });
+      if(d.dhcp.excl.length) p('Excluded addresses : '+d.dhcp.excl.map(e=>e.from+(e.to&&e.to!==e.from?' - '+e.to:'')).join(', '));
+    }
+    else if(/^(ip\s+)?nat/.test(s)){ p(d.nat.on?`NAT attivo. Interfaccia esterna (outside): ${d.nat.outside?fullIf(d.nat.outside):'(non scelta)'}. Tutte le altre sono interne (inside).`:'NAT non attivo.'); }
+    else { p('% Invalid input detected.','err'); p('→ Prova: show ip interface brief, show ip route, show arp, show running-config','note'); }
   }
   else if(c==='ping'||c==='tracert'||c==='traceroute'){
     const target=a[1]; if(!target){ p(`Uso: ${c} <indirizzo IP o nome>`,'err'); return {out,anims}; }
     const rs=resolve(d,target,anims);
-    if(!rs.ok){ p(`La richiesta ${c} non riesce a trovare l'host ${target}.`,'err'); why(rs.msg); return {out,anims}; }
+    if(!rs.ok){ p(isR?`% Unrecognized host or address: ${target}`:`La richiesta ${c} non riesce a trovare l'host ${target}.`,'err'); why(rs.msg); return {out,anims}; }
     const ip=i2ip(rs.ip);
     if(c==='ping'){
-      p(`Esecuzione di Ping ${target}${target!==ip?' ['+ip+']':''} con 32 byte di dati:`);
-      const rt=roundTrip(d,rs.ip,'icmp'); anims.push(rt);
-      for(let i=0;i<4;i++) p(rt.ok?`Risposta da ${ip}: byte=32 durata<1ms TTL=${rt.back.ttl}`:'Richiesta scaduta.',rt.ok?'ok':'err');
-      p(''); p(`Statistiche Ping per ${ip}:`); p(`    Pacchetti: Trasmessi = 4, Ricevuti = ${rt.ok?4:0}, Persi = ${rt.ok?0:4} (${rt.ok?0:100}% persi)`);
-      if(!rt.ok) why(rt.msg);
-      else if(rt.fwd.trail.length) p(`(NAT: ${rt.fwd.trail.map(t=>`${t.name} ha tradotto ${i2ip(t.from)} → ${i2ip(t.to)}`).join('; ')})`,'dim');
+      const n=isR?5:4; const rts=[]; for(let i=0;i<n;i++) rts.push(roundTrip(d,rs.ip,'icmp'));
+      anims.push(rts[0]); const got=rts.filter(r=>r.ok).length; const lost=rts.find(r=>!r.ok);
+      if(isR){
+        p('Type escape sequence to abort.'); p(`Sending 5, 100-byte ICMP Echos to ${ip}, timeout is 2 seconds:`);
+        // like a real Cisco router, the first echo is lost while ARP resolves the next hop
+        const marks=rts.map((r,i)=>r.ok?(i===0&&r.fwd.frames.some(fr=>fr.arp)?'.':'!'):'.'); p(marks.join(''),got?'ok':'err');
+        const okN=marks.filter(m=>m==='!').length; p(`Success rate is ${okN*20} percent (${okN}/5)`);
+        if(marks[0]==='.'&&rts[0].ok) p('(Il primo punto è normale: il router stava risolvendo l\'indirizzo MAC con ARP.)','dim');
+      } else {
+        p(`Esecuzione di Ping ${target}${target!==ip?' ['+ip+']':''} con 32 byte di dati:`);
+        rts.forEach(rt=>p(rt.ok?`Risposta da ${ip}: byte=32 durata<1ms TTL=${rt.back.ttl}`:'Richiesta scaduta.',rt.ok?'ok':'err'));
+        p(''); p(`Statistiche Ping per ${ip}:`); p(`    Pacchetti: Trasmessi = 4, Ricevuti = ${got}, Persi = ${4-got} (${(4-got)*25}% persi)`);
+      }
+      if(lost) why((got?'Alcune risposte sono andate perse. ':'')+lost.msg);
+      else if(rts[0].fwd.trail.length) p(`(NAT: ${rts[0].fwd.trail.map(t=>`${t.name} ha tradotto ${i2ip(t.from)} → ${i2ip(t.to)}`).join('; ')})`,'dim');
     } else {
-      p(`Rilevazione instradamento verso ${target}${target!==ip?' ['+ip+']':''} su un massimo di 30 punti di passaggio:`); p('');
+      p(isR?`Tracing the route to ${ip}`:`Rilevazione instradamento verso ${target}${target!==ip?' ['+ip+']':''} su un massimo di 30 punti di passaggio:`); p('');
       const f=travel(d,rs.ip,'icmp'); anims.push({fwd:f});
       let n=1;
       f.hops.slice(1).forEach(h=>{ const hd=dev(h.d); const hi=iface(hd,h.ifn); const reached=f.ok&&hd===f.dev; p(`  ${String(n++).padStart(2)}    <1 ms    <1 ms    <1 ms  ${reached?ip:(hi?hi.ip:'?')}  [${hd.name}]`); });
-      if(f.ok) { p(''); p('Rilevazione completata.','ok'); }
+      if(f.ok) { p(''); p(isR?'Trace complete.':'Rilevazione completata.','ok'); }
       else { p(`  ${String(n).padStart(2)}     *        *        *     Richiesta scaduta.`,'err'); why(f.msg); }
     }
   }
@@ -539,8 +829,9 @@ function runCmd(d,line){
   }
   else if((c==='http'||c==='curl'||c==='wget')&&!isR){
     const res=httpGet(d,a[1]||'',anims);
-    if(res.ok){ p('HTTP/1.1 200 OK','ok'); p(`<title>${res.title}</title>`); p(res.body); } else { p('Connessione non riuscita.','err'); why(res.msg); }
+    if(res.ok){ p('HTTP/1.1 200 OK','ok'); p(`<title>${res.title}</title>`,'wrap'); p(res.body,'wrap'); } else { p('Connessione non riuscita.','err'); why(res.msg); }
   }
+  else if(isR){ p('% Invalid input detected.','err'); p('→ Scrivi help per l\'elenco dei comandi.','note'); }
   else p(`"${a[0]}" non è riconosciuto come comando. Scrivi help per l'elenco.`,'err');
   return {out,anims};
 }
@@ -555,6 +846,18 @@ function httpGet(d,url,anims){
   return {ok:true,title:s.svc.http.title||'(senza titolo)',body:s.svc.http.body||'',srv:s.name,ip:i2ip(rs.ip)};
 }
 function playAnims(anims){ anims.forEach(rt=>{ const proto=(rt.fwd&&rt.fwd.pkt&&rt.fwd.pkt.proto)||'icmp'; playTrip(rt,proto); }); }
+
+/* ---------- packet capture ---------- */
+let lastCap=null;
+const PLBL={icmp:['ICMP echo request','ICMP echo reply'],dns:['DNS query','DNS response'],http:['HTTP GET','HTTP 200 OK']};
+function capture(d,cmd,anims){
+  if(!anims.length) return;
+  const items=[];
+  anims.forEach(rt=>{ const pr=(rt.fwd&&rt.fwd.pkt.proto)||'icmp'; const L=PLBL[pr]||[pr,pr];
+    items.push({label:L[0],t:rt.fwd}); if(rt.back) items.push({label:L[1],t:rt.back}); });
+  lastCap={dev:d.name,cmd,items};
+  const b=document.getElementById('bCap'); if(b){ b.disabled=false; b.classList.add('fresh'); setTimeout(()=>b.classList.remove('fresh'),900); }
+}
 
 /* ---------- diagnostics ---------- */
 function diagnose(){
@@ -577,12 +880,20 @@ function diagnose(){
     if(kindOf(d)==='router'){ const cs=d.ifaces.map(f=>[f,ifCfg(f)]).filter(x=>x[1]);
       for(let i=0;i<cs.length;i++) for(let j=i+1;j<cs.length;j++){ const p=Math.min(cs[i][1].p,cs[j][1].p); if(inNet(cs[i][1].ip,cs[j][1].ip,p)) out.push(['err',`${d.name}: le interfacce ${cs[i][0].name} e ${cs[j][0].name} sono nella stessa rete. Un router deve collegare reti diverse.`]); }
       if(d.nat.on&&!d.nat.outside) out.push(['warn',`${d.name}: il NAT è attivo ma non è stata scelta l'interfaccia esterna.`]);
+      d.ifaces.forEach(f=>{ if(f.up===false&&linkOf(d.id,f.name)) out.push(['warn',`${d.name}: l'interfaccia ${f.name} è spenta (shutdown), quindi il suo collegamento non funziona.`]); });
+      d.dhcp.pools.forEach(pl=>{ const n=ip2i(pl.net), q=maskPrefix(pl.mask);
+        if(n===null||!q){ out.push(['warn',`${d.name}: il pool DHCP ${pl.name} non ha una rete (network) valida.`]); return; }
+        if(!d.ifaces.some(f=>{ const c=ifCfg(f); return c&&inNet(c.ip,n,q); })) out.push(['warn',`${d.name}: nessuna interfaccia è nella rete del pool ${pl.name} (${pl.net}/${q}), quindi il pool non viene mai usato.`]);
+        const g=ip2i(pl.gw);
+        if(g===null) out.push(['warn',`${d.name}: il pool ${pl.name} non comunica il gateway (default-router): i client potranno parlare solo nella propria rete.`]);
+        else if(!inNet(g,n,q)) out.push(['err',`${d.name}: il default-router ${pl.gw} del pool ${pl.name} non è nella rete ${pl.net}/${q}.`]);
+        else if(!d.ifaces.some(f=>f.ip===pl.gw)) out.push(['warn',`${d.name}: il default-router ${pl.gw} del pool ${pl.name} non è l'indirizzo di un'interfaccia del router.`]); });
     }
   }
   const done=new Set();
   for(const d of S.devices){ if(d.type==='switch') continue;
     d.ifaces.forEach(f=>{ const k=d.id+':'+f.name; if(!adj.has(k)||done.has(k)) return;
-      const mem=[k,...segmentMembers(adj,k)]; mem.forEach(m=>done.add(m));
+      const mem=[k,...segmentMembers(adj,k)].filter(m=>m.includes(':')); mem.forEach(m=>done.add(m));
       const nets=new Map(); mem.forEach(m=>{ const md=dev(keyDev(m)), mf=iface(md,m.slice(m.indexOf(':')+1)); const c=mf&&ifCfg(mf); if(c){ const n=i2ip(netOf(c.ip,c.p))+'/'+c.p; if(!nets.has(n)) nets.set(n,[]); nets.get(n).push(md.name); } });
       if(nets.size>1) out.push(['warn',`Sullo stesso segmento fisico ci sono reti IP diverse: ${[...nets].map(([n,ds])=>`${n} (${ds.join(', ')})`).join(' e ')}. Questi dispositivi non potranno parlarsi direttamente.`]);
     });
@@ -600,14 +911,14 @@ function updUndo(){ const b=document.getElementById('bUndo'); if(b) b.disabled=!
 function undo(){ if(!undoStack.length){ toast('Niente da annullare.'); return; } const j=undoStack.pop(); const keep=sel; loadState(JSON.parse(j)); lastJSON=j; if(keep&&(keep.kind==='dev'?dev(keep.id):S.links.find(l=>l.id===keep.id))) sel=keep; updUndo(); try{ localStorage.setItem(KEY,j); }catch(e){} render(); renderInsp(); toast('Ultima modifica annullata.'); }
 function loadState(obj){
   const devs=(obj.devices||[]).map(d=>normalize(JSON.parse(JSON.stringify(d)))).filter(Boolean);
-  S={devices:devs,links:[],seq:1};
+  S={devices:devs,links:[],seq:1}; if(obj.exercise) S.exercise=true;
   let mx=0; devs.forEach(d=>{ const n=parseInt(String(d.id).slice(1)); if(n>mx) mx=n; });
   (obj.links||[]).forEach(l=>{ const n=parseInt(String(l.id).slice(1)); if(n>mx) mx=n; if(dev(l.a?.d)&&dev(l.b?.d)&&!linkOf(l.a.d,l.a.i)&&!linkOf(l.b.d,l.b.i)) S.links.push({id:l.id,a:{d:l.a.d,i:l.a.i},b:{d:l.b.d,i:l.b.i}}); });
   S.seq=mx+1; sel=null; linkFrom=null;
 }
 
 /* ---------- examples ---------- */
-function ifc(d,n,ip,mask){ const f=iface(d,n); f.ip=ip; f.mask=mask; return f; }
+function ifc(d,n,ip,mask){ const f=iface(d,n); f.ip=ip; f.mask=mask; f.up=true; return f; }
 function L(a,ai,b,bi){ addLink(a,ai,b,bi); }
 function publicSide(x,y){
   const net=makeDev('internet',x,y,'Internet');
@@ -625,7 +936,7 @@ function exHome(){
   const net=publicSide(1030,170); ifc(net,'G0/0','82.0.0.1','255.255.255.252');
   const r=makeDev('router',740,170,'Router-Casa');
   ifc(r,'G0/0','82.0.0.2','255.255.255.252'); const lan=ifc(r,'G0/1','192.168.1.1','255.255.255.0');
-  lan.dhcp={on:true,start:'192.168.1.100',end:'192.168.1.150',dns:'203.0.113.10'};
+  r.dhcp={pools:[{name:'CASA',net:'192.168.1.0',mask:'255.255.255.0',gw:'192.168.1.1',dns:'203.0.113.10'}],excl:[{from:'192.168.1.1',to:'192.168.1.99'}]};
   r.nat={on:true,outside:'G0/0'}; r.routes=[{net:'0.0.0.0',mask:'0.0.0.0',via:'82.0.0.1'}];
   const sw=makeDev('switch',470,330,'Switch-Casa');
   const a=makeDev('pc',200,180,'PC-Studio'), b=makeDev('laptop',200,470,'Portatile'), c=makeDev('pc',470,580,'Smart-TV');
@@ -651,8 +962,8 @@ function exOffice(){
   const r=makeDev('router',600,110,'R-Core');
   ifc(r,'G0/0','10.0.0.2','255.255.255.252');
   const v10=ifc(r,'G0/1','192.168.10.1','255.255.255.0'), v20=ifc(r,'G0/2','192.168.20.1','255.255.255.0');
-  v10.dhcp={on:true,start:'192.168.10.100',end:'192.168.10.150',dns:'172.16.0.10'};
-  v20.dhcp={on:true,start:'192.168.20.100',end:'192.168.20.150',dns:'203.0.113.10'};
+  r.dhcp={pools:[{name:'UFFICI',net:'192.168.10.0',mask:'255.255.255.0',gw:v10.ip,dns:'172.16.0.10'},{name:'OSPITI',net:'192.168.20.0',mask:'255.255.255.0',gw:v20.ip,dns:'203.0.113.10'}],
+    excl:[{from:'192.168.10.1',to:'192.168.10.99'},{from:'192.168.20.1',to:'192.168.20.99'}]};
   r.routes=[{net:'0.0.0.0',mask:'0.0.0.0',via:'10.0.0.1'}];
   const s1=makeDev('switch',540,340,'SW-Uffici'), s2=makeDev('switch',250,340,'SW-Ospiti');
   s1.ifaces[0].vlan=10; s1.ifaces[1].vlan=20; s1.ifaces[2].vlan=10; s1.ifaces[3].vlan=10;
@@ -681,13 +992,14 @@ function render(){
     const a=dev(l.a.d), b=dev(l.b.d); if(!a||!b) continue;
     const s=sel&&sel.kind==='link'&&sel.id===l.id;
     const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
-    h+=`<g class="link${s?' sel':''}" data-link="${l.id}"><line class="hit" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/><line class="wire" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    const up=linkUp(l);
+    h+=`<g class="link${s?' sel':''}" data-link="${l.id}"><line class="hit" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/><line class="wire${up?'':' down'}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
     [[a,l.a,1],[b,l.b,-1]].forEach(([d,e,sg])=>{
       const off=Math.min(40,len/2-6), lo=Math.min(66,len/2);
       const lx=d.x+ux*sg*lo - uy*12, ly=d.y+uy*sg*lo + ux*12;
       let t=e.i;
       if(d.type==='switch'){ const o=otherEnd(l,d.id,e.i); const od=dev(o.d); const f=iface(d,e.i); if(od.type==='switch') t+=' trunk'; else if(+f.vlan!==1) t+=' V'+f.vlan; }
-      h+=`<circle class="led" cx="${d.x+ux*sg*off}" cy="${d.y+uy*sg*off}" r="3.6"/><text class="plbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${esc(t)}</text>`;
+      h+=`<circle class="led${up?'':' off'}" cx="${d.x+ux*sg*off}" cy="${d.y+uy*sg*off}" r="3.6"/><text class="plbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${esc(t)}</text>`;
     });
     h+='</g>';
   }
@@ -697,11 +1009,11 @@ function render(){
       <rect class="halo" x="-46" y="-34" width="92" height="96" rx="10"/>
       <use href="#i-${d.type}" x="-32" y="-26" width="64" height="48"/>
       <text class="lbl" y="38" text-anchor="middle">${esc(d.name)}</text>
-      ${kindOf(d)==='host'?`<text class="sub" y="53" text-anchor="middle">${esc(firstIp(d))}</text>`:''}</g>`;
+      ${kindOf(d)==='host'&&!S.exercise?`<text class="sub" y="53" text-anchor="middle">${esc(firstIp(d))}</text>`:''}</g>`;
   }
   h+='<line id="rb" class="rb" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/>';
   world.innerHTML=h;
-  hint();
+  hint(); updExercise();
 }
 function hint(){
   const t={select:'Trascina i dispositivi per spostarli. Clicca un dispositivo per configurarlo.',link:linkFrom?`Ora clicca il secondo dispositivo da collegare a ${dev(linkFrom)?.name}. Esc per annullare.`:'Clicca il primo dispositivo da collegare con un cavo.',delete:'Clicca un dispositivo o un cavo per eliminarlo.'}[mode];
@@ -727,6 +1039,7 @@ document.getElementById('zIn').addEventListener('click',()=>zoomAt(0.8));
 document.getElementById('zOut').addEventListener('click',()=>zoomAt(1.25));
 document.getElementById('zFit').addEventListener('click',fitView);
 cv.addEventListener('wheel',e=>{ e.preventDefault(); const pt=svgPt(e); zoomAt(e.deltaY>0?1.12:1/1.12,pt.x,pt.y); },{passive:false});
+// When the side panel changes width, keep the same horizontal extent so the whole network stays in view.
 let lastAspect=0; new ResizeObserver(()=>{ const a=aspect(); if(Math.abs(a-lastAspect)>0.01){ const cx=VB.x+VB.w/2, cy=VB.y+VB.h/2; let w=VB.w,h=VB.h; if(lastAspect){ h=w/a; } VB={x:cx-w/2,y:cy-h/2,w,h}; lastAspect=a; applyVB(); } }).observe(cv);
 
 function svgPt(e){ const pt=cv.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; return pt.matrixTransform(cv.getScreenCTM().inverse()); }
@@ -743,7 +1056,7 @@ cv.addEventListener('pointerdown',e=>{
     if(!bi){ toast(`${b.name} non ha porte libere.`,'err'); return; }
     const l=addLink(a,ai,b,bi); toast(`Collegato ${a.name} ${ai} ↔ ${b.name} ${bi}`); linkFrom=null; sel={kind:'link',id:l.id}; save(); render(); renderInsp(); return;
   }
-  if(g){ const d=dev(g.dataset.dev); const was=sel&&sel.id===d.id; sel={kind:'dev',id:d.id}; drag={id:d.id,dx:pt.x-d.x,dy:pt.y-d.y,moved:false}; cv.setPointerCapture(e.pointerId); render(); if(!was) renderInsp(); }
+  if(g){ const d=dev(g.dataset.dev); const was=sel&&sel.id===d.id; sel={kind:'dev',id:d.id}; drag={id:d.id,dx:pt.x-d.x,dy:pt.y-d.y,moved:false}; cv.setPointerCapture(e.pointerId); render(); if(!was) drag.insp=true; }
   else if(lk){ sel={kind:'link',id:lk.dataset.link}; render(); renderInsp(); }
   else { startPan(e); }
 });
@@ -756,6 +1069,7 @@ cv.addEventListener('pointermove',e=>{
 });
 cv.addEventListener('pointerup',()=>{
   if(drag&&drag.moved) save();
+  if(drag&&drag.insp) renderInsp(); // after the drop, so the side panel never resizes the canvas mid-drag
   if(pan){ cv.parentElement.classList.remove('panning'); if(!pan.moved&&mode==='select'&&sel){ sel=null; render(); renderInsp(); } }
   drag=null; pan=null;
 });
@@ -780,12 +1094,12 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- inspector ---------- */
 const insp=document.getElementById('insp');
-function tabsFor(d){ return {host:d.type==='server'?['Configurazione','Servizi','Terminale']:['Configurazione','Terminale','Browser'],switch:['Porte'],router:d.type==='firewall'?['Interfacce','Routing e NAT','Regole','DHCP','Terminale']:['Interfacce','Routing e NAT','DHCP','Terminale']}[kindOf(d)]; }
+function tabsFor(d){ return {host:d.type==='server'?['Configurazione','Servizi','Terminale']:d.type==='printer'?['Configurazione']:['Configurazione','Terminale','Browser'],switch:['Porte'],router:d.type==='firewall'?['Interfacce','Routing e NAT','Regole','DHCP','Terminale']:['Interfacce','Routing e NAT','DHCP','Terminale']}[kindOf(d)]; }
 function peerTxt(d,ifn){ const l=linkOf(d.id,ifn); if(!l) return '<span class="chip off">libera</span>'; const o=otherEnd(l,d.id,ifn); const od=dev(o.d); return `<span class="mono">${esc(od.name)} · ${esc(o.i)}</span>`; }
 const inp=(b,v,o={})=>`<input class="inp ${o.mono!==false?'mono':''}" data-b="${b}" value="${esc(v)}" ${o.v?`data-v="${o.v}"`:''} ${o.ro?'readonly':''} placeholder="${esc(o.ph||'')}" ${o.id?`id="${o.id}"`:''} spellcheck="false" autocomplete="off">`;
 function renderInsp(){
   const d=selDev();
-  if(sel&&sel.kind==='link'){ const l=S.links.find(x=>x.id===sel.id); if(!l){ sel=null; return renderInsp(); }
+  if(sel&&sel.kind==='link'){ document.querySelector('.app').classList.remove('wideterm'); const l=S.links.find(x=>x.id===sel.id); if(!l){ sel=null; return renderInsp(); }
     const a=dev(l.a.d), b=dev(l.b.d);
     insp.innerHTML=`<div class="ih"><div class="nm"><div style="font-family:var(--f-disp);font-weight:600;font-size:18px;padding-left:6px">Cavo Ethernet</div><div class="ty">collegamento</div></div><button class="btn danger sm" data-a="delLink">Scollega</button></div>
       <div class="ib-body"><div class="sec"><div class="fgrid">${[['a',a],['b',b]].map(([k,d])=>`<label for="le${k}">${esc(d.name)}</label><select class="inp mono" id="le${k}" data-end="${k}">${d.ifaces.filter(f=>f.name===l[k].i||!linkOf(d.id,f.name)).map(f=>`<option ${f.name===l[k].i?'selected':''}>${esc(f.name)}</option>`).join('')}</select>`).join('')}</div>
@@ -808,10 +1122,12 @@ function renderInsp(){
     ${tabs.length>1?`<div class="tabs" role="tablist">${tabs.map(x=>`<button class="tab" role="tab" aria-selected="${x===t}" data-a="tab" data-x="${x}">${x}</button>`).join('')}</div>`:''}
     <div class="ib-body">${body}</div>`;
   const ihEl=insp.querySelector('.ih'); if(ihEl) insp.style.setProperty('--ih-h',ihEl.offsetHeight+'px');
+  document.querySelector('.app').classList.toggle('wideterm',t==='Terminale');
   if(t==='Terminale'){ paintTerm(d); }
   validateAll();
 }
 function renderHome(){
+  document.querySelector('.app').classList.remove('wideterm');
   const dg=diagnose();
   insp.innerHTML=`<div class="ih"><div class="nm"><div style="font-family:var(--f-disp);font-weight:700;font-size:18px;padding-left:6px">Come si usa</div><div class="ty">nessun dispositivo selezionato</div></div></div>
   <div class="ib-body">
@@ -820,9 +1136,11 @@ function renderHome(){
       <li>Scegli lo strumento <b>Cavo</b> e clicca due dispositivi per collegarli: viene usata la prima porta libera (puoi cambiarla cliccando il cavo).</li>
       <li>Clicca un dispositivo per configurarlo: indirizzi IP, gateway, rotte, DHCP, NAT, VLAN, regole del firewall, servizi.</li>
       <li>Trascina lo sfondo per spostare la vista, usa la rotella o i pulsanti <b>+ −</b> per lo zoom. <kbd>Ctrl</kbd>+<kbd>Z</kbd> annulla l'ultima modifica.</li>
-      <li>Apri il <b>Terminale</b> di un PC e prova <kbd>ipconfig</kbd>, <kbd>ping</kbd>, <kbd>tracert</kbd>, <kbd>nslookup</kbd>. Il pacchetto viaggia sullo schema; se non arriva, il terminale spiega il motivo.</li>
+      <li>Apri il <b>Terminale</b> di un PC e prova <kbd>ipconfig</kbd>, <kbd>ping</kbd>, <kbd>tracert</kbd>, <kbd>arp -a</kbd>. Il pacchetto viaggia sullo schema; se non arriva, il terminale spiega il motivo.</li>
+      <li>Il terminale dei router accetta i comandi Cisco: <kbd>enable</kbd>, <kbd>configure terminal</kbd>, <kbd>show ip interface brief</kbd>, <kbd>show running-config</kbd>…</li>
+      <li>Dopo un ping, il pulsante <b>Pacchetti</b> mostra i frame tratto per tratto, con indirizzi MAC e IP e le richieste ARP.</li>
     </ol></div>
-    <div class="sec" id="diagSec"><h4>Verifica della rete</h4><ul class="diag">${dg.map(([k,m])=>`<li class="${k}">${esc(m)}</li>`).join('')}</ul></div>
+    ${S.exercise?`<div class="sec" id="diagSec"><h4>Modalità esercizio</h4><p class="note">La verifica automatica e le spiegazioni «Perché» del terminale sono nascoste. Trova i problemi con <span class="mono">ping</span>, <span class="mono">ipconfig</span>, <span class="mono">arp -a</span> e, sui router, <span class="mono">show ip interface brief</span>.</p></div>`:`<div class="sec" id="diagSec"><h4>Verifica della rete</h4><ul class="diag">${dg.map(([k,m])=>`<li class="${k}">${esc(m)}</li>`).join('')}</ul></div>`}
     <div class="sec"><h4>Colori dei pacchetti</h4><div class="row"><span class="chip" style="color:var(--p-icmp)">● ICMP / ping</span><span class="chip" style="color:var(--p-dns)">● DNS</span><span class="chip" style="color:var(--p-http)">● HTTP</span></div>
     <p class="note">Il lavoro viene salvato automaticamente in questo browser. Con <b>Esporta</b> ottieni il testo della rete da consegnare o condividere; con <b>Importa</b> lo ricarichi.</p></div>
   </div>`;
@@ -836,6 +1154,8 @@ function tabHost(d){
       <label>Subnet mask</label>${inp('ifaces.0.mask',f.mask,{v:'mask',ro:dh,ph:'es. 255.255.255.0'})}
       <label>Gateway</label>${inp('gw',d.gw,{v:'ip',ro:dh,ph:'es. 192.168.1.1'})}
       <label>Server DNS</label>${inp('dns',d.dns,{v:'ip',ro:dh,ph:'es. 8.8.8.8'})}
+      <label>Indirizzo MAC</label><span class="mono">${macWin(f.mac)}</span>
+      ${dh?`<label>Server DHCP</label><span class="mono">${f.lease?esc(f.lease.srvName):'—'}</span>`:''}
     </div>
     ${dh?`<div class="row"><button class="btn sm pri" data-a="renew">Richiedi indirizzo</button><button class="btn sm" data-a="release">Rilascia</button></div>`:`<p class="note">Puoi scrivere anche 192.168.1.10/24: la maschera viene compilata da sola.</p>`}
   </div>`;
@@ -848,10 +1168,13 @@ function tabSwitch(d){
   </tbody></table></div></div>`;
 }
 function tabIfaces(d){
-  return `<div class="sec"><h4>Interfacce</h4><p class="note">Un router collega reti diverse: ogni interfaccia deve stare in una rete IP diversa.</p>
-  <div class="twrap"><table class="tbl"><thead><tr><th>Nome</th><th>Indirizzo IP</th><th>Subnet mask</th><th>Collegata a</th></tr></thead><tbody>
-  ${d.ifaces.map((f,i)=>`<tr><td class="mono">${esc(f.name)}</td><td>${inp(`ifaces.${i}.ip`,f.ip,{v:'ip'})}</td><td>${inp(`ifaces.${i}.mask`,f.mask,{v:'mask'})}</td><td>${peerTxt(d,f.name)}</td></tr>`).join('')}
-  </tbody></table></div></div>`;
+  const isRouter=d.type==='router';
+  return `<div class="sec"><h4>Interfacce</h4><p class="note">Un router collega reti diverse: ogni interfaccia deve stare in una rete IP diversa. Un'interfaccia spenta (shutdown) non fa passare traffico${isRouter?': come sui router Cisco, quelle di un router nuovo sono spente e vanno accese':''}.</p>
+  <div class="twrap"><table class="tbl"><thead><tr><th>Interfaccia</th><th>Indirizzo IP</th><th>Subnet mask</th><th>Accesa</th></tr></thead><tbody>
+  ${d.ifaces.map((f,i)=>`<tr><td><span class="mono"><b>${esc(f.name)}</b></span><div class="macs" title="Indirizzo MAC">${macCisco(f.mac)}</div><div class="macs">${linkOf(d.id,f.name)?'→ '+esc(dev(otherEnd(linkOf(d.id,f.name),d.id,f.name).d).name):'non collegata'}</div></td><td>${inp(`ifaces.${i}.ip`,f.ip,{v:'ip'})}</td><td>${inp(`ifaces.${i}.mask`,f.mask,{v:'mask'})}</td>
+    <td><label class="tog"><input type="checkbox" data-b="ifaces.${i}.up" data-r="1" ${f.up!==false?'checked':''} aria-label="Interfaccia ${esc(f.name)} accesa"><span class="${f.up!==false?'on':'off'}">${f.up!==false?'sì':'no'}</span></label></td></tr>`).join('')}
+  </tbody></table></div>
+  <p class="note">Dal <b>Terminale</b> puoi configurare le stesse cose con i comandi Cisco: <span class="mono">interface g0/0</span>, <span class="mono">ip address …</span>, <span class="mono">no shutdown</span>.</p></div>`;
 }
 function routeRows(d){ const rt=routeTable(d); return rt.length?rt.map(r=>`<tr><td>${r.code}</td><td>${r.net}/${r.p}</td><td>${r.via?esc(r.via):'connessa'}</td><td>${esc(r.ifn)}</td></tr>`).join(''):'<tr><td colspan="4">vuota</td></tr>'; }
 function tabRouting(d){
@@ -868,10 +1191,24 @@ function tabRouting(d){
     <p class="note">Serve sul router che si affaccia a Internet: gli indirizzi privati (10.x, 172.16-31.x, 192.168.x) non possono viaggiare su Internet.</p></div>`;
 }
 function tabDhcp(d){
-  const list=d.ifaces.map((f,i)=>({f,i})).filter(x=>ifCfg(x.f));
-  return `<div class="sec"><h4>Server DHCP</h4><p class="note">Il router distribuisce gli indirizzi ai dispositivi collegati all'interfaccia scelta. Come gateway comunica il proprio indirizzo su quell'interfaccia.</p></div>
-  ${list.length?list.map(({f,i})=>`<div class="card"><label class="chk"><input type="checkbox" data-b="ifaces.${i}.dhcp.on" data-r="1" ${f.dhcp.on?'checked':''}> Attivo su <b class="mono">${esc(f.name)}</b> <span class="mono" style="color:var(--muted)">(${esc(f.ip)}/${maskPrefix(f.mask)})</span></label>
-    ${f.dhcp.on?`<div class="fgrid"><label>Primo indirizzo</label>${inp(`ifaces.${i}.dhcp.start`,f.dhcp.start,{v:'ip'})}<label>Ultimo indirizzo</label>${inp(`ifaces.${i}.dhcp.end`,f.dhcp.end,{v:'ip'})}<label>Server DNS</label>${inp(`ifaces.${i}.dhcp.dns`,f.dhcp.dns,{v:'ip'})}<label>Gateway</label><span class="mono">${esc(f.ip)}</span></div>`:''}</div>`).join(''):'<p class="note">Prima assegna un indirizzo IP a un\'interfaccia.</p>'}`;
+  const pools=d.dhcp.pools, ex=d.dhcp.excl;
+  const serving=pl=>{ const n=ip2i(pl.net), q=maskPrefix(pl.mask); if(n===null||!q) return null; const f=d.ifaces.find(f=>{ const c=ifCfg(f); return c&&inNet(c.ip,n,q); }); return f?f.name:null; };
+  return `<div class="sec"><h4>Indirizzi esclusi<span class="sp"></span><button class="btn sm" data-a="addExcl">Aggiungi</button></h4>
+    <p class="note">Il DHCP non assegna mai questi indirizzi: si riservano al router e ai dispositivi con IP statico, come stampanti e server. Corrisponde a <span class="mono">ip dhcp excluded-address</span>.</p>
+    ${ex.length?`<div class="twrap"><table class="tbl"><thead><tr><th>Dal</th><th>Al (vuoto = solo il primo)</th><th></th></tr></thead><tbody>${ex.map((e,i)=>`<tr><td>${inp(`dhcp.excl.${i}.from`,e.from,{v:'ip',ph:'192.168.1.1'})}</td><td>${inp(`dhcp.excl.${i}.to`,e.to,{v:'ip',ph:'192.168.1.9'})}</td><td><button class="btn sm ghost danger" data-a="delExcl" data-x="${i}" aria-label="Elimina esclusione">✕</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="note">Nessun indirizzo escluso.</p>'}
+  </div>
+  <div class="sec"><h4>Pool DHCP<span class="sp"></span><button class="btn sm" data-a="addPool">Aggiungi pool</button></h4>
+    <p class="note">Quando una richiesta arriva su un'interfaccia, il router usa il pool la cui rete contiene l'indirizzo di quell'interfaccia. Un pool senza gateway lascia i client isolati nella loro rete.</p>
+    ${pools.length?pools.map((pl,i)=>{ const sv=serving(pl), ls=leasesOf(d.id+'/'+pl.name); return `<div class="card">
+      <div class="row"><b class="mono" style="flex:1">${esc(pl.name)}</b><span class="chip ${sv?'on':''}">${sv?'serve '+esc(sv):'nessuna interfaccia in questa rete'}</span><button class="btn sm ghost danger" data-a="delPool" data-x="${i}" aria-label="Elimina pool">✕</button></div>
+      <div class="fgrid"><label>Nome</label>${inp(`dhcp.pools.${i}.name`,pl.name)}
+        <label>Rete (network)</label>${inp(`dhcp.pools.${i}.net`,pl.net,{v:'ip',ph:'192.168.1.0'})}
+        <label>Subnet mask</label>${inp(`dhcp.pools.${i}.mask`,pl.mask,{v:'mask',ph:'255.255.255.0'})}
+        <label>Gateway (default-router)</label>${inp(`dhcp.pools.${i}.gw`,pl.gw,{v:'ip',ph:'nessuno'})}
+        <label>Server DNS</label>${inp(`dhcp.pools.${i}.dns`,pl.dns,{v:'ip',ph:'nessuno'})}</div>
+      <p class="note">${ls.length?'Assegnati: '+ls.map(x=>`<span class="mono">${esc(x.f.ip)}</span> ${esc(x.dev.name)}`).join(' · '):'Nessun indirizzo assegnato.'}</p>
+    </div>`; }).join(''):'<p class="note">Nessun pool: il router non risponde alle richieste DHCP.</p>'}
+  </div>`;
 }
 function tabRules(d){
   return `<div class="sec"><h4>Politica predefinita</h4>
@@ -899,13 +1236,13 @@ function tabServices(d){
 }
 function tabTerm(d){
   const isR=kindOf(d)==='router';
-  const q=isR?['show ip route','show ip interface brief','ping ','tracert ']:['ipconfig','ipconfig /renew','ping ','tracert ','nslookup '];
+  const q=isR?['enable','configure terminal','end','show ip interface brief','show running-config','show ip route','show arp','ping ']:['ipconfig','ipconfig /all','ipconfig /renew','arp -a','ping ','tracert ','nslookup '];
   return `<div class="quick">${q.map(c=>`<button class="btn sm" data-a="quick" data-x="${esc(c)}">${esc(c.trim())}</button>`).join('')}<button class="btn sm ghost" data-a="quick" data-x="help">help</button></div>
-  <div class="term"><div class="tout" id="tout" aria-live="polite"></div><form class="tin" id="tform"><span>${esc(prompt(d))}</span><input id="tcmd" aria-label="Comando" autocomplete="off" spellcheck="false" autocapitalize="off"></form></div>`;
+  <div class="term"><div class="tout" id="tout" aria-live="polite"></div><form class="tin" id="tform"><span id="tprompt">${esc(prompt(d))}</span><input id="tcmd" aria-label="Comando" autocomplete="off" spellcheck="false" autocapitalize="off"></form></div>`;
 }
 function paintTerm(d){
   const o=document.getElementById('tout'); if(!o) return;
-  if(!term[d.id]) term[d.id]=[[`${d.name} — scrivi help per l'elenco dei comandi.`,'dim']];
+  if(!term[d.id]) term[d.id]=kindOf(d)==='router'?[[`Console di ${d.name}. Scrivi help per l'elenco dei comandi.`,'dim'],['Per configurare: enable, poi configure terminal.','dim']]:[[`${d.name} — scrivi help per l'elenco dei comandi.`,'dim']];
   o.innerHTML=''; term[d.id].forEach(([t,c])=>{ const s=document.createElement('div'); if(c) s.className=c; s.textContent=t||'\u00a0'; o.appendChild(s); });
   o.scrollTop=o.scrollHeight;
 }
@@ -930,7 +1267,11 @@ insp.addEventListener('change',e=>{
   if(typeof v==='string'&&el.type!=='checkbox'&&el.tagName!=='TEXTAREA'&&b!=='svc.http.title') v=v.trim();
   if(/^ifaces\.\d+\.ip$/.test(b)&&v.includes('/')){ const [ip,m]=v.split('/'); v=ip.trim(); el.value=v; const p=parseInt(m); if(p>=1&&p<=32){ const mb=b.replace(/ip$/,'mask'), mv=i2ip(pmask(p)); setPath(d,mb,mv); const me=insp.querySelector(`[data-b="${mb}"]`); if(me){ me.value=mv; me.classList.remove('bad'); } } }
   if(b==='name'&&!v){ el.value=d.name; return; }
+  const pm=/^dhcp\.pools\.(\d+)\.name$/.exec(b);
+  if(pm){ v=String(v).replace(/\s+/g,'_'); if(!v||d.dhcp.pools.some((p,i)=>i!==+pm[1]&&p.name===v)){ el.value=d.dhcp.pools[+pm[1]].name; toast('Ogni pool deve avere un nome diverso.','err'); return; }
+    const old=d.id+'/'+d.dhcp.pools[+pm[1]].name; S.devices.forEach(h=>h.ifaces.forEach(g=>{ if(g.lease&&g.lease.srv===old) g.lease.srv=d.id+'/'+v; })); el.value=v; }
   setPath(d,b,v);
+  if(b==='ifaces.0.mode'&&v==='static') d.ifaces[0].lease=null;
   if(/^ifaces\.0\.mode$/.test(b)){ const f=d.ifaces[0]; if(v==='dhcp'){ const r=dhcpRenew(d,f); toast(r.msg,r.ok?'':'err'); } }
   save(); render();
   // Full re-render only when the panel's structure changes; otherwise refresh in place so clicks on other controls are not lost.
@@ -958,6 +1299,12 @@ insp.addEventListener('click',e=>{
   if(a==='delRule') d.fw.rules.splice(+x,1);
   if(a==='upRule'&&+x>0){ const r=d.fw.rules; [r[+x-1],r[+x]]=[r[+x],r[+x-1]]; }
   if(a==='addRec') d.svc.dns.records.push({name:'',ip:''});
+  if(a==='addExcl') d.dhcp.excl.push({from:'',to:''});
+  if(a==='delExcl') d.dhcp.excl.splice(+x,1);
+  if(a==='delPool') d.dhcp.pools.splice(+x,1);
+  if(a==='addPool'){ let n=1; while(d.dhcp.pools.some(p=>p.name==='POOL'+n)) n++;
+    const f=d.ifaces.find(f=>{ const c=ifCfg(f); return c&&!d.dhcp.pools.some(p=>{ const pn=ip2i(p.net), q=maskPrefix(p.mask); return pn!==null&&q&&inNet(c.ip,pn,q); }); });
+    const c=f&&ifCfg(f); d.dhcp.pools.push(c?{name:'POOL'+n,net:i2ip(netOf(c.ip,c.p)),mask:f.mask,gw:f.ip,dns:''}:{name:'POOL'+n,net:'',mask:'',gw:'',dns:''}); }
   if(a==='delRec') d.svc.dns.records.splice(+x,1);
   if(a==='quick'){ const i=document.getElementById('tcmd'); if(i){ if(x.endsWith(' ')){ i.value=x; i.focus(); } else exec(d,x); } return; }
   save(); render(); renderInsp();
@@ -969,12 +1316,13 @@ function exec(d,line){
   const r=runCmd(d,line);
   if(!r.cleared) term[d.id].push(...r.out,['','']);
   if(term[d.id].length>600) term[d.id]=term[d.id].slice(-600);
-  paintTerm(d); playAnims(r.anims);
+  paintTerm(d); playAnims(r.anims); capture(d,line.trim(),r.anims);
+  const pr=document.getElementById('tprompt'); if(pr) pr.textContent=prompt(d);
 }
 insp.addEventListener('submit',e=>{
   e.preventDefault(); const d=selDev(); if(!d) return;
-  if(e.target.id==='tform'){ const i=document.getElementById('tcmd'); const v=i.value; i.value=''; exec(d,v); i.focus(); }
-  if(e.target.id==='bform'){ const url=document.getElementById('burl').value.trim(); const anims=[]; const res=httpGet(d,url,anims); browserState[d.id]={url,res}; renderInsp(); playAnims(anims); }
+  if(e.target.id==='tform'){ const i=document.getElementById('tcmd'); const v=i.value; i.value=''; exec(d,v); const j=document.getElementById('tcmd'); if(j) j.focus(); }
+  if(e.target.id==='bform'){ const url=document.getElementById('burl').value.trim(); const anims=[]; const res=httpGet(d,url,anims); browserState[d.id]={url,res}; renderInsp(); playAnims(anims); capture(d,'http '+url,anims); }
 });
 insp.addEventListener('keydown',e=>{
   if(e.target.id!=='tcmd') return; const d=selDev(); const h=hist[d.id]||[]; let p=histPos[d.id]??h.length;
@@ -984,6 +1332,7 @@ insp.addEventListener('keydown',e=>{
 
 /* ---------- top bar ---------- */
 const modalRoot=document.getElementById('modalRoot');
+let lastFileName='Cognome_EsN';
 const CAN_DL=(()=>{ try{ return window.self===window.top; }catch(e){ return false; } })();
 function modal(html,bind){ modalRoot.innerHTML=`<div class="modal" role="dialog" aria-modal="true"><div class="box">${html}</div></div>`; const m=modalRoot.firstChild; m.addEventListener('click',e=>{ if(e.target===m||e.target.closest('[data-close]')) modalRoot.innerHTML=''; }); bind&&bind(m); }
 document.getElementById('exSel').addEventListener('change',e=>{
@@ -995,10 +1344,34 @@ document.getElementById('exSel').addEventListener('change',e=>{
 });
 document.getElementById('bDiag').addEventListener('click',()=>{ sel=null; render(); renderInsp(); const sec=document.getElementById('diagSec'); if(sec){ insp.scrollTop=0; sec.scrollIntoView({behavior:'smooth',block:'nearest'}); } });
 document.getElementById('bUndo').addEventListener('click',undo);
+function updExercise(){ const on=!!S.exercise; document.getElementById('bDiag').hidden=on; document.getElementById('exChip').hidden=!on; }
+document.getElementById('exChip').addEventListener('click',()=>{
+  modal(`<h3>Disattivare la modalità esercizio?</h3><p class="note">Tornano il pulsante Verifica rete e le spiegazioni «Perché» nel terminale. In un esercizio di ricerca guasti mostrano subito gli errori.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annulla</button><button class="btn pri" id="mOff">Disattiva</button></div>`,m=>m.querySelector('#mOff').addEventListener('click',()=>{ delete S.exercise; save(); render(); renderInsp(); modalRoot.innerHTML=''; toast('Modalità esercizio disattivata.'); }));
+});
+document.getElementById('bCap').addEventListener('click',()=>{ if(!lastCap) return;
+  const nm=id=>{ const x=dev(id); return x?esc(x.name):'?'; };
+  const mac=m=>{ if(!m) return '—'; const o=macOwner(m); return `<span title="${o?esc(o.d.name+' '+o.f.name):''}">${macWin(m)}</span>`; };
+  const body=lastCap.items.map(it=>{ const t=it.t; let rows='';
+    t.frames.forEach(fr=>{
+      if(fr.arp){ const hosts=fr.arp.domain.filter(id=>dev(id)&&dev(id).type!=='switch'), sws=fr.arp.domain.filter(id=>dev(id)&&dev(id).type==='switch');
+        rows+=`<tr class="arp"><td colspan="5"><b>ARP</b>: ${nm(fr.from)} chiede in broadcast «chi ha ${i2ip(fr.arp.ip)}?» (MAC destinazione FF-FF-FF-FF-FF-FF). ${sws.length?`Gli switch ${sws.map(nm).join(', ')} la inoltrano su tutte le porte. `:''}La ricevono: ${hosts.length?hosts.map(nm).join(', '):'nessuno'}. ${fr.arp.answered?`Risponde ${nm(fr.arp.answered)} con il suo MAC.`:'Nessuno risponde.'}</td></tr>`; }
+      if(fr.to) rows+=`<tr><td class="tr">${[fr.from,...fr.via,fr.to].map(nm).join(' → ')}</td><td>${mac(fr.smac)}</td><td>${mac(fr.dmac)}</td><td>${i2ip(fr.sip)}</td><td>${i2ip(fr.dip)}</td></tr>`;
+    });
+    if(!t.ok) rows+=`<tr class="fail"><td colspan="5">${S.exercise?`Il pacchetto non prosegue oltre ${nm(t.where)}.`:esc(t.msg)}</td></tr>`;
+    if(!rows) rows='<tr><td colspan="5" class="tr">Nessun frame: la destinazione è il dispositivo stesso.</td></tr>';
+    return `<h4>${esc(it.label)}</h4><div class="twrap"><table class="tbl cap"><thead><tr><th>Tratto</th><th>MAC sorgente</th><th>MAC destinazione</th><th>IP sorgente</th><th>IP destinazione</th></tr></thead><tbody>${rows}</tbody></table></div>`; }).join('');
+  modal(`<h3>Pacchetti di «${esc(lastCap.cmd)}» da ${esc(lastCap.dev)}</h3><p class="note">Una riga per ogni tratto tra due dispositivi che lavorano con l'IP. Gli switch inoltrano il frame senza modificarlo. Passa il mouse su un MAC per vedere a chi appartiene. Nel ping si mostra solo il primo dei pacchetti inviati.</p>${body}<div class="row" style="justify-content:flex-end"><button class="btn pri" data-close>Chiudi</button></div>`);
+  modalRoot.querySelector('.box').classList.add('wide');
+});
 document.getElementById('bExp').addEventListener('click',()=>{
   const txt=JSON.stringify(S);
-  modal(`<h3>Esporta la rete</h3><p class="note">Copia questo testo${CAN_DL?' oppure scarica il file':''} e consegnalo come compito: con Importa la rete si ricarica identica.</p><textarea id="mTxt" readonly>${esc(txt)}</textarea><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Chiudi</button>${CAN_DL?'<button class="btn" id="mDl">Scarica file .json</button>':''}<button class="btn pri" id="mCopy">Copia</button></div>`,m=>{
-    const dl=m.querySelector('#mDl'); if(dl) dl.addEventListener('click',()=>{ try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'})); a.download='rete.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); }catch(err){ toast('Download non riuscito: usa Copia.','err'); } });
+  modal(`<h3>Esporta la rete</h3><p class="note">Copia questo testo${CAN_DL?' oppure scarica il file':''} e consegnalo come compito: con Importa la rete si ricarica identica.</p>
+    <label class="chk"><input type="checkbox" id="mEx" ${S.exercise?'checked':''}> Modalità esercizio: chi apre la rete non vede «Verifica rete» né le spiegazioni dei guasti</label>
+    <textarea id="mTxt" readonly>${esc(txt)}</textarea>
+    ${CAN_DL?`<div class="fgrid"><label for="mName">Nome del file</label><input class="inp" id="mName" value="${esc(lastFileName)}" placeholder="Cognome_Es3"></div>`:''}
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-close>Chiudi</button>${CAN_DL?'<button class="btn" id="mDl">Scarica file .json</button>':''}<button class="btn pri" id="mCopy">Copia</button></div>`,m=>{
+    m.querySelector('#mEx').addEventListener('change',e=>{ if(e.target.checked) S.exercise=true; else delete S.exercise; save(); render(); renderInsp(); m.querySelector('#mTxt').value=JSON.stringify(S); });
+    const dl=m.querySelector('#mDl'); if(dl) dl.addEventListener('click',()=>{ try{ const nmI=m.querySelector('#mName'); lastFileName=(nmI&&nmI.value.trim().replace(/\.json$/i,'').replace(/[\\/:*?"<>|]+/g,'_'))||'rete'; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'})); a.download=lastFileName+'.json'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); }catch(err){ toast('Download non riuscito: usa Copia.','err'); } });
     m.querySelector('#mCopy').addEventListener('click',()=>{ const ta=m.querySelector('#mTxt'); navigator.clipboard.writeText(ta.value).then(()=>toast('Copiato negli appunti.')).catch(()=>{ ta.focus(); ta.select(); toast('Testo selezionato: premi Ctrl+C.'); }); });
   });
 });
