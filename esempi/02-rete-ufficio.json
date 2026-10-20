@@ -1,0 +1,1046 @@
+{
+ "devices": [
+  {
+   "id": "d1",
+   "type": "internet",
+   "name": "Internet",
+   "x": 1090,
+   "y": 110,
+   "ifaces": [
+    {
+     "name": "G0/0",
+     "ip": "82.0.0.5",
+     "mask": "255.255.255.252",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "G0/1",
+     "ip": "203.0.113.1",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "G0/2",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "G0/3",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "",
+   "dns": "",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d2",
+   "type": "server",
+   "name": "Server-Web",
+   "x": 1090,
+   "y": 340,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "203.0.113.10",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "203.0.113.1",
+   "dns": "",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": true,
+     "title": "Benvenuto su www.esempio.it",
+     "body": "Se leggi questa pagina la rete funziona. La richiesta HTTP è partita dalla tua rete locale, ha attraversato il NAT del router di confine, ha viaggiato su Internet ed è arrivata a questo server con indirizzo pubblico 203.0.113.10."
+    },
+    "dns": {
+     "on": true,
+     "records": [
+      {
+       "name": "www.esempio.it",
+       "ip": "203.0.113.10"
+      },
+      {
+       "name": "dns.esempio.it",
+       "ip": "203.0.113.10"
+      }
+     ]
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d4",
+   "type": "firewall",
+   "name": "FW-Ufficio",
+   "x": 850,
+   "y": 110,
+   "ifaces": [
+    {
+     "name": "WAN",
+     "ip": "82.0.0.6",
+     "mask": "255.255.255.252",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "LAN",
+     "ip": "10.0.0.1",
+     "mask": "255.255.255.252",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "DMZ",
+     "ip": "172.16.0.1",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "",
+   "dns": "",
+   "routes": [
+    {
+     "net": "0.0.0.0",
+     "mask": "0.0.0.0",
+     "via": "82.0.0.5"
+    },
+    {
+     "net": "192.168.0.0",
+     "mask": "255.255.0.0",
+     "via": "10.0.0.2"
+    }
+   ],
+   "nat": {
+    "on": true,
+    "outside": "WAN"
+   },
+   "fw": {
+    "def": "deny",
+    "rules": [
+     {
+      "action": "deny",
+      "proto": "any",
+      "src": "192.168.20.0/24",
+      "dst": "172.16.0.0/24"
+     },
+     {
+      "action": "permit",
+      "proto": "any",
+      "src": "192.168.10.0/24",
+      "dst": "any"
+     },
+     {
+      "action": "permit",
+      "proto": "http",
+      "src": "192.168.20.0/24",
+      "dst": "any"
+     },
+     {
+      "action": "permit",
+      "proto": "dns",
+      "src": "192.168.20.0/24",
+      "dst": "any"
+     }
+    ]
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d5",
+   "type": "server",
+   "name": "Server-DMZ",
+   "x": 850,
+   "y": 340,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "172.16.0.10",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "172.16.0.1",
+   "dns": "",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": true,
+     "title": "Intranet aziendale",
+     "body": "Portale interno: circolari, turni e modulistica. Questa pagina è visibile dagli uffici (VLAN 10) ma il firewall la nasconde alla rete ospiti (VLAN 20)."
+    },
+    "dns": {
+     "on": true,
+     "records": [
+      {
+       "name": "intranet.ufficio",
+       "ip": "172.16.0.10"
+      },
+      {
+       "name": "www.esempio.it",
+       "ip": "203.0.113.10"
+      }
+     ]
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d6",
+   "type": "router",
+   "name": "R-Core",
+   "x": 600,
+   "y": 110,
+   "ifaces": [
+    {
+     "name": "G0/0",
+     "ip": "10.0.0.2",
+     "mask": "255.255.255.252",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "G0/1",
+     "ip": "192.168.10.1",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": true,
+      "start": "192.168.10.100",
+      "end": "192.168.10.150",
+      "dns": "172.16.0.10"
+     }
+    },
+    {
+     "name": "G0/2",
+     "ip": "192.168.20.1",
+     "mask": "255.255.255.0",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": true,
+      "start": "192.168.20.100",
+      "end": "192.168.20.150",
+      "dns": "203.0.113.10"
+     }
+    },
+    {
+     "name": "G0/3",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "",
+   "dns": "",
+   "routes": [
+    {
+     "net": "0.0.0.0",
+     "mask": "0.0.0.0",
+     "via": "10.0.0.1"
+    }
+   ],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d7",
+   "type": "switch",
+   "name": "SW-Uffici",
+   "x": 540,
+   "y": 340,
+   "ifaces": [
+    {
+     "name": "Fa0/1",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 10,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/2",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 20,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/3",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 10,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/4",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 10,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/5",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/6",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/7",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/8",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "",
+   "dns": "",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d8",
+   "type": "switch",
+   "name": "SW-Ospiti",
+   "x": 250,
+   "y": 340,
+   "ifaces": [
+    {
+     "name": "Fa0/1",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 20,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/2",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 20,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/3",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/4",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/5",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/6",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/7",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    },
+    {
+     "name": "Fa0/8",
+     "ip": "",
+     "mask": "",
+     "mode": "static",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "",
+   "dns": "",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d9",
+   "type": "pc",
+   "name": "PC-Segreteria",
+   "x": 450,
+   "y": 570,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "192.168.10.100",
+     "mask": "255.255.255.0",
+     "mode": "dhcp",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "192.168.10.1",
+   "dns": "172.16.0.10",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d10",
+   "type": "pc",
+   "name": "PC-Direzione",
+   "x": 650,
+   "y": 570,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "192.168.10.101",
+     "mask": "255.255.255.0",
+     "mode": "dhcp",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "192.168.10.1",
+   "dns": "172.16.0.10",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d11",
+   "type": "laptop",
+   "name": "Ospite-1",
+   "x": 120,
+   "y": 570,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "192.168.20.100",
+     "mask": "255.255.255.0",
+     "mode": "dhcp",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "192.168.20.1",
+   "dns": "203.0.113.10",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  },
+  {
+   "id": "d12",
+   "type": "laptop",
+   "name": "Ospite-2",
+   "x": 300,
+   "y": 580,
+   "ifaces": [
+    {
+     "name": "eth0",
+     "ip": "192.168.20.101",
+     "mask": "255.255.255.0",
+     "mode": "dhcp",
+     "vlan": 1,
+     "dhcp": {
+      "on": false,
+      "start": "",
+      "end": "",
+      "dns": ""
+     }
+    }
+   ],
+   "gw": "192.168.20.1",
+   "dns": "203.0.113.10",
+   "routes": [],
+   "nat": {
+    "on": false,
+    "outside": ""
+   },
+   "fw": {
+    "def": "deny",
+    "rules": []
+   },
+   "svc": {
+    "http": {
+     "on": false,
+     "title": "",
+     "body": ""
+    },
+    "dns": {
+     "on": false,
+     "records": []
+    },
+    "dhcp": {
+     "on": false,
+     "start": "",
+     "end": "",
+     "mask": "",
+     "gw": "",
+     "dns": ""
+    }
+   }
+  }
+ ],
+ "links": [
+  {
+   "id": "l3",
+   "a": {
+    "d": "d1",
+    "i": "G0/1"
+   },
+   "b": {
+    "d": "d2",
+    "i": "eth0"
+   }
+  },
+  {
+   "id": "l13",
+   "a": {
+    "d": "d1",
+    "i": "G0/0"
+   },
+   "b": {
+    "d": "d4",
+    "i": "WAN"
+   }
+  },
+  {
+   "id": "l14",
+   "a": {
+    "d": "d4",
+    "i": "DMZ"
+   },
+   "b": {
+    "d": "d5",
+    "i": "eth0"
+   }
+  },
+  {
+   "id": "l15",
+   "a": {
+    "d": "d4",
+    "i": "LAN"
+   },
+   "b": {
+    "d": "d6",
+    "i": "G0/0"
+   }
+  },
+  {
+   "id": "l16",
+   "a": {
+    "d": "d6",
+    "i": "G0/1"
+   },
+   "b": {
+    "d": "d7",
+    "i": "Fa0/1"
+   }
+  },
+  {
+   "id": "l17",
+   "a": {
+    "d": "d6",
+    "i": "G0/2"
+   },
+   "b": {
+    "d": "d7",
+    "i": "Fa0/2"
+   }
+  },
+  {
+   "id": "l18",
+   "a": {
+    "d": "d7",
+    "i": "Fa0/3"
+   },
+   "b": {
+    "d": "d9",
+    "i": "eth0"
+   }
+  },
+  {
+   "id": "l19",
+   "a": {
+    "d": "d7",
+    "i": "Fa0/4"
+   },
+   "b": {
+    "d": "d10",
+    "i": "eth0"
+   }
+  },
+  {
+   "id": "l20",
+   "a": {
+    "d": "d7",
+    "i": "Fa0/8"
+   },
+   "b": {
+    "d": "d8",
+    "i": "Fa0/8"
+   }
+  },
+  {
+   "id": "l21",
+   "a": {
+    "d": "d8",
+    "i": "Fa0/1"
+   },
+   "b": {
+    "d": "d11",
+    "i": "eth0"
+   }
+  },
+  {
+   "id": "l22",
+   "a": {
+    "d": "d8",
+    "i": "Fa0/2"
+   },
+   "b": {
+    "d": "d12",
+    "i": "eth0"
+   }
+  }
+ ],
+ "seq": 23
+}
