@@ -93,5 +93,3 @@ Funziona anche aprendo `index.html` direttamente dal computer, con un doppio cli
 
 - Il **codice** (`index.html`) è distribuito con licenza [MIT](LICENSE).
 - I **contenuti didattici** (questo README, le reti di esempio e le esercitazioni) sono distribuiti con licenza [CC BY-NC-SA 4.0](LICENSE-CC-BY-NC-SA.md).
-
-© 2026 Pietro Gardoni, IISS Bazoli-Polo
