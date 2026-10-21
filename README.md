@@ -33,7 +33,7 @@ Un **indirizzo IP duplicato** si comporta come in una rete vera: `ipconfig` lo s
 | `ipconfig`, `ipconfig /all` | `enable`, `disable`, `configure terminal`, `end`, `exit` |
 | `ipconfig /renew`, `ipconfig /release` | `show ip interface brief`, `show interfaces` |
 | `arp -a`, `arp -d` | `show ip route`, `show arp`, `show running-config` |
-| `ping <ip o nome>` | `show ip dhcp binding`, `show ip dhcp pool` |
+| `ping <ip o nome>` | `show ip dhcp binding`, `show ip dhcp pool`, `clear arp-cache` |
 | `tracert <ip o nome>` | `ping`, `traceroute` |
 | `nslookup <nome>` | |
 | `http <ip o nome>` | |
