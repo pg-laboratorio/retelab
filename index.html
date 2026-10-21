@@ -606,6 +606,7 @@ function ios(d,line,p){
     if(k(0,'exit',2)||k(0,'logout',3)){ st.mode='user'; return true; }
     if(k(0,'configure',4)){ if(st.mode==='user') return bad('Prima entra in modalità privilegiata con enable.'); if(W[1]&&!k(1,'terminal',1)) return bad('Si scrive configure terminal (abbreviato: conf t).'); st.mode='conf'; p('Enter configuration commands, one per line.  End with CNTL/Z.','dim'); return true; }
     if(k(0,'write',2)||(k(0,'copy',2)&&k(1,'running-config',3))){ if(st.mode==='user') return bad('Serve la modalità privilegiata: scrivi enable.'); p('Building configuration...'); p('[OK]','ok'); return true; }
+    if(k(0,'clear',3)&&k(1,'arp-cache',3)){ if(st.mode==='user') return bad('Serve la modalità privilegiata: scrivi enable.'); arpTab(d).clear(); return true; }
     if(k(0,'show',2)&&k(1,'running-config',3)&&st.mode==='user') return bad('show running-config richiede la modalità privilegiata: scrivi enable.');
     if(['interface','hostname','ip','no','router'].some(x=>k(0,x,2))) return bad(st.mode==='user'?'Per configurare scrivi enable e poi configure terminal.':'Per configurare scrivi prima configure terminal.');
     return false;
@@ -722,7 +723,7 @@ function runCmd(d,line){
     } else {
       p('Modalità: R1> utente · R1# privilegiata (enable) · R1(config)# configurazione (configure terminal)','dim');
       p('Verifica (R1> o R1#):','dim');
-      p('  show ip interface brief    show interfaces    show ip route'); p('  show arp    show ip dhcp binding    show ip dhcp pool'); p('  show running-config (solo R1#)    ping <ip>    traceroute <ip>');
+      p('  show ip interface brief    show interfaces    show ip route'); p('  show arp    show ip dhcp binding    show ip dhcp pool    clear arp-cache (solo R1#)'); p('  show running-config (solo R1#)    ping <ip>    traceroute <ip>');
       p('Configurazione (dopo configure terminal):','dim');
       p('  hostname <nome>'); p('  interface <nome>                 es. interface g0/0'); p('    ip address <ip> <mask>    no shutdown    shutdown    ip nat outside');
       p('  ip route <rete> <mask> <next-hop>'); p('  ip dhcp excluded-address <primo> [<ultimo>]'); p('  ip dhcp pool <nome>'); p('    network <rete> <mask>    default-router <ip>    dns-server <ip>');
@@ -911,7 +912,7 @@ function updUndo(){ const b=document.getElementById('bUndo'); if(b) b.disabled=!
 function undo(){ if(!undoStack.length){ toast('Niente da annullare.'); return; } const j=undoStack.pop(); const keep=sel; loadState(JSON.parse(j)); lastJSON=j; if(keep&&(keep.kind==='dev'?dev(keep.id):S.links.find(l=>l.id===keep.id))) sel=keep; updUndo(); try{ localStorage.setItem(KEY,j); }catch(e){} render(); renderInsp(); toast('Ultima modifica annullata.'); }
 function loadState(obj){
   const devs=(obj.devices||[]).map(d=>normalize(JSON.parse(JSON.stringify(d)))).filter(Boolean);
-  S={devices:devs,links:[],seq:1}; if(obj.exercise) S.exercise=true;
+  S={devices:devs,links:[],seq:1}; if(obj.exercise) S.exercise=true; ARP.clear();
   let mx=0; devs.forEach(d=>{ const n=parseInt(String(d.id).slice(1)); if(n>mx) mx=n; });
   (obj.links||[]).forEach(l=>{ const n=parseInt(String(l.id).slice(1)); if(n>mx) mx=n; if(dev(l.a?.d)&&dev(l.b?.d)&&!linkOf(l.a.d,l.a.i)&&!linkOf(l.b.d,l.b.i)) S.links.push({id:l.id,a:{d:l.a.d,i:l.a.i},b:{d:l.b.d,i:l.b.i}}); });
   S.seq=mx+1; sel=null; linkFrom=null;
@@ -1338,7 +1339,7 @@ function modal(html,bind){ modalRoot.innerHTML=`<div class="modal" role="dialog"
 document.getElementById('exSel').addEventListener('change',e=>{
   const k=e.target.value; e.target.value=''; if(!k) return;
   const label=e.target.querySelector(`option[value="${k}"]`).textContent;
-  const go=()=>{ EX[k](); sel=null; linkFrom=null; save(); render(); renderInsp(); fitView(); toast(`Caricato: ${label}`); };
+  const go=()=>{ EX[k](); ARP.clear(); sel=null; linkFrom=null; save(); render(); renderInsp(); fitView(); toast(`Caricato: ${label}`); };
   if(!S.devices.length){ go(); return; }
   modal(`<h3>Sostituire la rete attuale?</h3><p class="note">Stai per caricare "${esc(label)}". La rete che hai sullo schermo verrà sostituita. Se ti serve, esportala prima.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annulla</button><button class="btn pri" id="mOk">Carica</button></div>`,m=>m.querySelector('#mOk').addEventListener('click',()=>{ modalRoot.innerHTML=''; go(); }));
 });
