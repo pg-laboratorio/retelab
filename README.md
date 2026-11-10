@@ -63,7 +63,7 @@ Funzionano anche le abbreviazioni (`conf t`, `int g0/0`, `no shut`, `sh ip int b
 
 ## Come si usa
 
-1. Aggiungi i dispositivi dall'elenco **Dispositivi**.
+1. Parti da **Nuova rete** (o da un esempio) e aggiungi i dispositivi dall'elenco **Dispositivi**.
 2. Scegli lo strumento **Cavo** e clicca due dispositivi per collegarli. Viene usata la prima porta libera; cliccando il cavo puoi cambiarla.
 3. Clicca un dispositivo per aprirne la configurazione.
 4. Apri il **Terminale** di un PC e verifica la rete con `ping` e `tracert`.
@@ -78,6 +78,18 @@ Trascina lo sfondo per spostare la vista, usa la rotella o i pulsanti **− Adat
 - **Importa → Apri un file .json** la ricarica identica.
 
 In questo modo uno studente può consegnare la propria rete e il docente può aprirla e provarla.
+
+### Documento PDF della rete
+
+Il pulsante **PDF** crea un documento pronto da consegnare, con:
+
+- intestazione con studente, classe, esercizio e data;
+- lo schema della rete;
+- il piano degli indirizzi (IP, mask, gateway, MAC di ogni interfaccia) e l'elenco dei cavi;
+- la configurazione di ogni dispositivo: interfacce accese o spente, tabella di routing, NAT, pool DHCP ed esclusioni, regole del firewall, VLAN degli switch, servizi dei server e, se vuoi, la `show running-config` dei router;
+- l'esito di **Verifica rete** (non in modalità esercizio).
+
+Si può **scaricare** direttamente come file PDF, con il nome scelto (per esempio `Rossi_Es3.pdf`), oppure **stampare**: nella finestra di stampa si può anche scegliere «Salva come PDF». Lo scaricamento usa la libreria jsPDF, caricata da Internet solo quando serve; la stampa funziona anche senza connessione. Nome, classe ed esercizio vengono ricordati per la volta successiva.
 
 ### Modalità esercizio
 
