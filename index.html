@@ -204,11 +204,40 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .ih{position:static}
 }
 @media (prefers-reduced-motion: reduce){.toast{animation:none}}
+/* printable network document: hidden on screen, the only thing printed */
+#report{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{height:auto!important;background:#fff!important}
+  body>*:not(#report){display:none!important}
+  #report{display:block;color:#17232a;font:10pt/1.45 "IBM Plex Sans",system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #report .rh .rb{font:700 8pt "IBM Plex Sans Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#0b7487}
+  #report h1{font:700 20pt "IBM Plex Sans Condensed",sans-serif;margin:2pt 0 8pt}
+  #report h2{font:700 13pt "IBM Plex Sans Condensed",sans-serif;color:#0b7487;border-bottom:1.2pt solid #0b7487;padding-bottom:2pt;margin:16pt 0 6pt;break-after:avoid}
+  #report h3{font:700 11.5pt "IBM Plex Sans Condensed",sans-serif;margin:10pt 0 4pt;break-after:avoid}
+  #report h3 span{font:400 9pt "IBM Plex Sans",sans-serif;color:#5b6a72;margin-left:4pt}
+  #report .dv{break-inside:avoid-page}
+  #report figure{margin:0 0 6pt;text-align:center;break-inside:avoid}
+  #report figure img{max-width:100%;max-height:150mm}
+  #report table{width:100%;border-collapse:collapse;margin:0 0 6pt;font-size:8.8pt;break-inside:auto}
+  #report th,#report td{border:.6pt solid #cdd7db;padding:2.5pt 4pt;text-align:left;vertical-align:top}
+  #report thead th{background:#e9eef0}
+  #report tr{break-inside:avoid}
+  #report table.kv{width:auto;min-width:60%}
+  #report table.kv th,#report table.kv td{border:none;padding:1pt 8pt 1pt 0}
+  #report table.kv th{color:#5b6a72;font-weight:600}
+  #report td.m{font-family:"IBM Plex Mono",Menlo,Consolas,monospace;font-size:8.3pt}
+  #report p{margin:0 0 5pt}
+  #report .pt{font-weight:600;color:#5b6a72;font-size:9pt;margin-top:4pt}
+  #report pre{font:7.8pt/1.35 "IBM Plex Mono",Menlo,Consolas,monospace;margin:0 0 6pt;padding:4pt 6pt;border-left:2pt solid #cdd7db;white-space:pre-wrap}
+  #report ul{margin:0;padding-left:14pt}
+  #report li.err::marker{color:#cc3f35} #report li.warn::marker{color:#b7791f} #report li.ok::marker{color:#23915a}
+}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
+  <defs id="symbols">
     <symbol id="i-pc" viewBox="0 0 64 48"><rect x="8" y="3" width="48" height="31" rx="3" class="ib"/><rect x="13" y="8" width="38" height="21" rx="1" class="ia"/><path d="M27 34h10l2 7H25z" class="ib"/><rect x="17" y="41" width="30" height="4" rx="2" class="ib"/></symbol>
     <symbol id="i-laptop" viewBox="0 0 64 48"><rect x="12" y="5" width="40" height="29" rx="3" class="ib"/><rect x="16.5" y="9.5" width="31" height="20" rx="1" class="ia"/><path d="M4 37h56l-4 7H8z" class="ib"/></symbol>
     <symbol id="i-printer" viewBox="0 0 64 48"><rect x="18" y="3" width="28" height="13" rx="1" class="ib"/><rect x="6" y="15" width="52" height="20" rx="4" class="ia"/><rect x="16" y="28" width="32" height="17" rx="1" class="ib"/><path d="M21 34h22M21 39h16" class="ln" style="--c:var(--ink)"/><circle cx="50" cy="21" r="2" class="lnp" style="fill:var(--panel)"/></symbol>
@@ -227,6 +256,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
       ReteLab <small>simulatore didattico</small>
     </div>
     <button class="chip ex" id="exChip" hidden title="Clicca per disattivarla">Modalità esercizio</button>
+    <button class="btn" id="bNew" title="Inizia una rete vuota">Nuova rete</button>
     <select class="btn" id="exSel" aria-label="Carica un esempio">
       <option value="">Carica esempio…</option>
       <option value="home">Rete domestica (router, NAT, DHCP)</option>
@@ -238,6 +268,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     <button class="btn" id="bDiag">Verifica rete</button>
     <button class="btn" id="bExp">Esporta</button>
     <button class="btn" id="bImp">Importa</button>
+    <button class="btn" id="bPdf" title="Documento con schema e configurazioni: da scaricare in PDF o da stampare">PDF</button>
   </header>
 
   <aside class="palette" id="palette">
@@ -271,6 +302,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   <section class="insp" id="insp" aria-label="Configurazione"></section>
 </div>
 <div id="modalRoot"></div>
+<div id="report" aria-hidden="true"></div>
 
 <script>
 "use strict";
@@ -993,14 +1025,14 @@ const EX={home:exHome,office:exOffice,lan:exLan,empty:()=>{S={devices:[],links:[
 /* ---------- canvas render ---------- */
 const cv=document.getElementById('cv'), world=document.getElementById('world');
 function firstIp(d){ const f=d.ifaces.find(f=>ifCfg(f)); return f?(f.ip+'/'+maskPrefix(f.mask)):''; }
-function render(){
+function worldMarkup(o={}){
   let h='';
   for(const l of S.links){
     const a=dev(l.a.d), b=dev(l.b.d); if(!a||!b) continue;
-    const s=sel&&sel.kind==='link'&&sel.id===l.id;
+    const s=!o.doc&&sel&&sel.kind==='link'&&sel.id===l.id;
     const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
     const up=linkUp(l);
-    h+=`<g class="link${s?' sel':''}" data-link="${l.id}"><line class="hit" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/><line class="wire${up?'':' down'}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    h+=`<g class="link${s?' sel':''}" data-link="${l.id}">${o.doc?'':`<line class="hit" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`}<line class="wire${up?'':' down'}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
     [[a,l.a,1],[b,l.b,-1]].forEach(([d,e,sg])=>{
       const off=Math.min(40,len/2-6), lo=Math.min(66,len/2);
       const lx=d.x+ux*sg*lo - uy*12, ly=d.y+uy*sg*lo + ux*12;
@@ -1011,13 +1043,17 @@ function render(){
     h+='</g>';
   }
   for(const d of S.devices){
-    const s=sel&&sel.kind==='dev'&&sel.id===d.id;
-    h+=`<g class="dev${s?' sel':''}${linkFrom===d.id?' from':''}" data-dev="${d.id}" transform="translate(${d.x},${d.y})" style="--c:${TYPES[d.type].c}">
-      <rect class="halo" x="-46" y="-34" width="92" height="96" rx="10"/>
+    const s=!o.doc&&sel&&sel.kind==='dev'&&sel.id===d.id;
+    h+=`<g class="dev${s?' sel':''}${!o.doc&&linkFrom===d.id?' from':''}" data-dev="${d.id}" transform="translate(${d.x},${d.y})" style="--c:${TYPES[d.type].c}">
+      ${o.doc?'':'<rect class="halo" x="-46" y="-34" width="92" height="96" rx="10"/>'}
       <use href="#i-${d.type}" x="-32" y="-26" width="64" height="48"/>
       <text class="lbl" y="38" text-anchor="middle">${esc(d.name)}</text>
-      ${kindOf(d)==='host'&&!S.exercise?`<text class="sub" y="53" text-anchor="middle">${esc(firstIp(d))}</text>`:''}</g>`;
+      ${kindOf(d)==='host'&&(o.doc||!S.exercise)?`<text class="sub" y="53" text-anchor="middle">${esc(firstIp(d))}</text>`:''}</g>`;
   }
+  return h;
+}
+function render(){
+  let h=worldMarkup();
   h+='<line id="rb" class="rb" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/>';
   world.innerHTML=h;
   hint(); updExercise();
@@ -1386,6 +1422,176 @@ document.getElementById('bImp').addEventListener('click',()=>{
   modal(`<h3>Importa una rete</h3><p class="note">Incolla il testo ottenuto con Esporta oppure apri un file .json. La rete attuale verrà sostituita.</p><textarea id="mTxt" placeholder='{"devices":[...],"links":[...]}'></textarea><div class="row"><label class="btn" for="mFile">Apri un file .json…</label><input type="file" id="mFile" accept=".json,application/json,text/plain" hidden></div><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annulla</button><button class="btn pri" id="mLoad">Importa</button></div>`,m=>{
     m.querySelector('#mFile').addEventListener('change',ev=>{ const f=ev.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ m.querySelector('#mTxt').value=r.result; m.querySelector('#mLoad').click(); }; r.readAsText(f); });
     m.querySelector('#mLoad').addEventListener('click',()=>{ try{ const o=JSON.parse(m.querySelector('#mTxt').value); if(!o||!Array.isArray(o.devices)) throw 0; loadState(o); resetRuntime(); save(); render(); renderInsp(); fitView(); modalRoot.innerHTML=''; toast('Rete importata.'); }catch(err){ toast('Il testo non è una rete valida: controlla di averlo copiato per intero.','err'); } });
+  });
+});
+
+/* ---------- network document: print or PDF ---------- */
+const EXPORT_CSS=`.ib{fill:#ffffff;stroke:#17232a;stroke-width:2;stroke-linejoin:round}.ia{fill:var(--c,#6d7f88)}
+.ln{fill:none;stroke:var(--c,#6d7f88);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}.lnp{fill:none;stroke:#ffffff;stroke-width:2.2;stroke-linecap:round}
+.lbl{font:600 13px "IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;fill:#17232a;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
+.sub{font:11px "IBM Plex Mono",Menlo,Consolas,monospace;fill:#5b6a72;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round}
+.plbl{font:10.5px "IBM Plex Mono",Menlo,Consolas,monospace;fill:#5b6a72;paint-order:stroke;stroke:#ffffff;stroke-width:3.5px}
+.wire{stroke:#6d7f88;stroke-width:2.6}.wire.down{stroke-dasharray:7 6}.hit{stroke:none}.led{fill:#23915a}.led.off{fill:#cc3f35}.halo{fill:none;stroke:none}`;
+function exportSvg(){
+  if(!S.devices.length) return null;
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  S.devices.forEach(d=>{ x0=Math.min(x0,d.x-90); x1=Math.max(x1,d.x+90); y0=Math.min(y0,d.y-50); y1=Math.max(y1,d.y+70); });
+  const w=Math.round(x1-x0), h=Math.round(y1-y0);
+  const sym=document.getElementById('symbols').innerHTML;
+  return {w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x0} ${y0} ${w} ${h}" width="${w}" height="${h}" style="--ink:#17232a;--panel:#ffffff"><style>${EXPORT_CSS}</style>${sym}<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#ffffff"/>${worldMarkup({doc:true})}</svg>`};
+}
+function svgToPng(ex){
+  return new Promise((res,rej)=>{ const k=Math.min(3,2600/ex.w); const img=new Image();
+    img.onload=()=>{ const c=document.createElement('canvas'); c.width=Math.round(ex.w*k); c.height=Math.round(ex.h*k); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height); res({data:c.toDataURL('image/png'),w:c.width,h:c.height}); };
+    img.onerror=()=>rej(new Error('svg')); img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(ex.svg); });
+}
+const RANK={router:0,firewall:0,internet:0,switch:1,server:2};
+function devLabel(d){ return TYPES[d.type].label; }
+function peerName(d,ifn){ const l=linkOf(d.id,ifn); if(!l) return '—'; const o=otherEnd(l,d.id,ifn); return `${dev(o.d).name} (${o.i})`; }
+function buildReport(info){
+  const B=[]; const now=new Date();
+  const devs=[...S.devices].sort((a,b)=>((RANK[a.type]??3)-(RANK[b.type]??3))||a.name.localeCompare(b.name,'it',{numeric:true}));
+  B.push({t:'title',text:'Documentazione della rete'});
+  B.push({t:'meta',rows:[['Studente',info.name||'—'],['Classe',info.cls||'—'],['Esercizio',info.ex||'—'],['Data',now.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})],['Contenuto',`${S.devices.length} dispositivi, ${S.links.length} cavi`]]});
+  B.push({t:'h2',text:'Schema della rete'}); B.push({t:'diagram'});
+  // address plan
+  const addr=[];
+  devs.forEach(d=>{ if(d.type==='switch') return; const isH=kindOf(d)==='host';
+    d.ifaces.forEach(f=>{ if(!isH&&!f.ip&&!linkOf(d.id,f.name)) return;
+      addr.push([d.name,f.name,f.ip||'—',f.mask||'—',isH?(d.gw||'—'):'—',isH?macWin(f.mac):macCisco(f.mac),isH?(f.mode==='dhcp'?'DHCP':'statico'):(f.up!==false?'accesa':'spenta')]); }); });
+  B.push({t:'h2',text:'Piano degli indirizzi'});
+  B.push(addr.length?{t:'table',head:['Dispositivo','Interfaccia','Indirizzo IP','Subnet mask','Gateway','MAC','Stato'],rows:addr,mono:[2,3,4,5]}:{t:'p',text:'Nessun indirizzo configurato.'});
+  B.push({t:'h2',text:'Collegamenti'});
+  B.push(S.links.length?{t:'table',head:['Da','Porta','A','Porta','Stato'],rows:S.links.map(l=>{ const a=dev(l.a.d), b=dev(l.b.d); return [a.name,l.a.i,b.name,l.b.i,linkUp(l)?'attivo':'non attivo (interfaccia spenta)']; }),mono:[1,3]}:{t:'p',text:'Nessun cavo.'});
+  B.push({t:'h2',text:'Configurazione dei dispositivi'});
+  devs.forEach(d=>{
+    B.push({t:'h3',text:d.name,sub:devLabel(d)});
+    const k=kindOf(d);
+    if(k==='host'){ const f=d.ifaces[0];
+      const rows=[['Configurazione IP',f.mode==='dhcp'?'Automatica (DHCP)':'Statica'],['Indirizzo IP',f.ip||'—'],['Subnet mask',f.mask||'—'],['Gateway',d.gw||'—'],['Server DNS',d.dns||'—'],['Indirizzo MAC',macWin(f.mac)],['Collegata a',peerName(d,f.name)]];
+      if(f.mode==='dhcp') rows.push(['Server DHCP',f.lease?f.lease.srvName:'—']);
+      B.push({t:'kv',rows});
+      if(d.type==='server'){ const s=d.svc; const sv=[];
+        sv.push(['Web (HTTP)',s.http.on?`attivo, pagina «${s.http.title||'senza titolo'}»`:'non attivo']);
+        sv.push(['DNS',s.dns.on?`attivo, ${s.dns.records.length} record`:'non attivo']);
+        sv.push(['DHCP',s.dhcp.on?`attivo, da ${s.dhcp.start||'?'} a ${s.dhcp.end||'?'}, mask ${s.dhcp.mask||'?'}, gateway ${s.dhcp.gw||'—'}, DNS ${s.dhcp.dns||'—'}`:'non attivo']);
+        B.push({t:'kv',rows:sv});
+        if(s.dns.on&&s.dns.records.length) B.push({t:'table',head:['Nome','Indirizzo IP'],rows:s.dns.records.map(r=>[r.name||'—',r.ip||'—']),mono:[0,1]});
+      }
+    } else if(d.type==='switch'){
+      const used=d.ifaces.filter(f=>linkOf(d.id,f.name));
+      B.push(used.length?{t:'table',head:['Porta','VLAN','Collegata a'],rows:used.map(f=>{ const o=dev(otherEnd(linkOf(d.id,f.name),d.id,f.name).d); return [f.name,o.type==='switch'?'trunk (tutte)':String(+f.vlan||1),peerName(d,f.name)]; }),mono:[0]}:{t:'p',text:'Nessuna porta collegata.'});
+      const free=d.ifaces.filter(f=>!linkOf(d.id,f.name)).map(f=>f.name); if(free.length&&used.length) B.push({t:'p',text:'Porte libere: '+free.join(', ')+'.'});
+    } else {
+      B.push({t:'table',head:['Interfaccia','Indirizzo IP','Stato','MAC','Collegata a'],rows:d.ifaces.filter(f=>d.type==='router'||f.ip||linkOf(d.id,f.name)).map(f=>{ const c=ifCfg(f); const [st,pr]=ifStatus(d,f); return [fullIf(f.name),c?`${f.ip}/${c.p}`:'—',f.up===false?'spenta':(pr==='up'?'accesa, collegamento attivo':'accesa, collegamento non attivo'),macCisco(f.mac),peerName(d,f.name)]; }),mono:[1,3]});
+      const rt=routeTable(d);
+      B.push({t:'p',text:'Tabella di routing'+(rt.length?':':': vuota.')});
+      if(rt.length) B.push({t:'table',head:['Tipo','Destinazione','Via','Interfaccia'],rows:rt.map(r=>[r.code==='C'?'C (connessa)':r.code==='S*'?'S* (default)':'S (statica)',`${r.net}/${r.p}`,r.via||'—',r.ifn]),mono:[1,2,3]});
+      if(d.nat.on) B.push({t:'p',text:`NAT attivo: gli indirizzi interni escono con l'indirizzo dell'interfaccia ${d.nat.outside||'(non scelta)'}.`});
+      if(d.dhcp.pools.length||d.dhcp.excl.length){
+        if(d.dhcp.excl.length) B.push({t:'p',text:'Indirizzi esclusi dal DHCP: '+d.dhcp.excl.map(e=>e.from+(e.to&&e.to!==e.from?' – '+e.to:'')).join(', ')+'.'});
+        if(d.dhcp.pools.length) B.push({t:'table',head:['Pool DHCP','Rete','Gateway','DNS','Assegnati'],rows:d.dhcp.pools.map(p=>{ const q=maskPrefix(p.mask); const ls=leasesOf(d.id+'/'+p.name); return [p.name,p.net?`${p.net}/${q??'?'}`:'—',p.gw||'—',p.dns||'—',ls.length?ls.map(x=>`${x.f.ip} ${x.dev.name}`).join(', '):'nessuno']; }),mono:[1,2,3]});
+      }
+      if(d.type==='firewall'){
+        B.push({t:'p',text:`Regole del firewall, lette dall'alto in basso. Se nessuna regola corrisponde: ${d.fw.def==='deny'?'blocca (deny)':'consenti (permit)'}.`});
+        if(d.fw.rules.length) B.push({t:'table',head:['N.','Azione','Protocollo','Sorgente','Destinazione'],rows:d.fw.rules.map((r,i)=>[String(i+1),r.action,r.proto==='any'?'tutti':PROTO[r.proto],r.src||'any',r.dst||'any']),mono:[3,4]});
+      }
+      if(d.type==='router'&&info.runcfg) B.push({t:'pre',title:'show running-config',lines:runningConfig(d).slice(3)});
+    }
+  });
+  if(!S.exercise){ B.push({t:'h2',text:'Verifica della rete'}); B.push({t:'list',items:diagnose()}); }
+  return B;
+}
+// Text safe for the PDF's standard fonts (Latin-1 only).
+const pdfT=s=>String(s??'').replace(/→/g,'->').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[^\x00-\xff]/g,'');
+function reportHtml(B,png){
+  const tbl=b=>`<table><thead><tr>${b.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map((c,i)=>`<td${(b.mono||[]).includes(i)?' class="m"':''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const kv=rows=>`<table class="kv"><tbody>${rows.map(([k,v])=>`<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table>`;
+  let h='', open=false; const close=()=>{ if(open){ h+='</section>'; open=false; } };
+  B.forEach(b=>{
+    if(b.t==='title'){ h+=`<header class="rh"><div class="rb">ReteLab</div><h1>${esc(b.text)}</h1></header>`; }
+    else if(b.t==='meta') h+=kv(b.rows);
+    else if(b.t==='h2'){ close(); h+=`<h2>${esc(b.text)}</h2>`; }
+    else if(b.t==='h3'){ close(); h+=`<section class="dv"><h3>${esc(b.text)} <span>${esc(b.sub)}</span></h3>`; open=true; }
+    else if(b.t==='diagram') h+=png?`<figure><img src="${png}" alt="Schema della rete"></figure>`:'<p>La rete è vuota.</p>';
+    else if(b.t==='table') h+=tbl(b);
+    else if(b.t==='kv') h+=kv(b.rows);
+    else if(b.t==='p') h+=`<p>${esc(b.text)}</p>`;
+    else if(b.t==='pre') h+=`<p class="pt">${esc(b.title)}</p><pre>${esc(b.lines.join('\n'))}</pre>`;
+    else if(b.t==='list') h+=`<ul>${b.items.map(([k,m])=>`<li class="${k}">${esc(m)}</li>`).join('')}</ul>`;
+  });
+  close(); return h;
+}
+const LIBS=['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'];
+let libsP=null;
+function loadLibs(){
+  if(libsP) return libsP;
+  libsP=LIBS.reduce((p,src)=>p.then(()=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('lib')); document.head.appendChild(s); })),Promise.resolve());
+  libsP.catch(()=>{ libsP=null; });
+  return libsP;
+}
+async function makePdf(B,png,info){
+  await loadLibs();
+  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+  const M=15, PW=210, PH=297, W=PW-2*M, BOT=PH-M-6; let y=M;
+  const ACC=[11,116,135], INK=[23,35,42], MUT=[91,106,114], LINE=[205,215,219];
+  const need=h=>{ if(y+h>BOT){ doc.addPage(); y=M; } };
+  const at=(o)=>{ doc.autoTable(Object.assign({startY:y,margin:{left:M,right:M,bottom:M+6},styles:{font:'helvetica',fontSize:8.5,cellPadding:1.5,textColor:INK,lineColor:LINE,lineWidth:0.2,overflow:'linebreak'},headStyles:{fillColor:[233,238,240],textColor:INK,fontStyle:'bold'}},o)); y=doc.lastAutoTable.finalY+4; };
+  for(const b of B){
+    if(b.t==='title'){ doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...ACC); doc.text('RETELAB',M,y+2); doc.setFontSize(18); doc.setTextColor(...INK); doc.text(pdfT(b.text),M,y+10); y+=15; }
+    else if(b.t==='meta'||b.t==='kv'){ need(8); at({theme:'plain',body:b.rows.map(r=>r.map(pdfT)),styles:{font:'helvetica',fontSize:9,cellPadding:1,textColor:INK},columnStyles:{0:{fontStyle:'bold',textColor:MUT,cellWidth:38}}}); }
+    else if(b.t==='h2'){ need(16); y+=3; doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...ACC); doc.text(pdfT(b.text),M,y+4); doc.setDrawColor(...ACC); doc.setLineWidth(0.4); doc.line(M,y+6,M+W,y+6); y+=10; }
+    else if(b.t==='h3'){ need(18); y+=2; doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...INK); doc.text(pdfT(b.text),M,y+4); const tw=doc.getTextWidth(pdfT(b.text)); doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...MUT); doc.text(pdfT(b.sub),M+tw+3,y+4); y+=7; }
+    else if(b.t==='diagram'){ if(!png){ need(6); doc.setFontSize(9.5); doc.text('La rete è vuota.',M,y+4); y+=7; continue; }
+      let w=W, h=w*png.h/png.w; if(h>150){ h=150; w=h*png.w/png.h; } need(h+2); doc.addImage(png.data,'PNG',M+(W-w)/2,y,w,h); y+=h+4; }
+    else if(b.t==='table'){ need(12); const cs={}; (b.mono||[]).forEach(i=>cs[i]={font:'courier',fontSize:8}); at({theme:'grid',head:[b.head.map(pdfT)],body:b.rows.map(r=>r.map(pdfT)),columnStyles:cs}); }
+    else if(b.t==='p'){ doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...INK); const ls=doc.splitTextToSize(pdfT(b.text),W); need(ls.length*4.2+2); doc.text(ls,M,y+3.5); y+=ls.length*4.2+2; }
+    else if(b.t==='pre'){ need(10); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...MUT); doc.text(pdfT(b.title),M,y+3.5); y+=6; doc.setFont('courier','normal'); doc.setFontSize(8); doc.setTextColor(...INK);
+      for(const l of b.lines){ need(3.6); doc.text(pdfT(l),M+2,y+2.8); y+=3.6; } y+=3; }
+    else if(b.t==='list'){ doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      for(const [k,m] of b.items){ const tag={err:'Errore: ',warn:'Attenzione: ',ok:''}[k]||''; const ls=doc.splitTextToSize(pdfT(tag+m),W-4); need(ls.length*4.2+1.5); doc.setTextColor(...(k==='err'?[204,63,53]:k==='warn'?[150,95,10]:[35,145,90])); doc.text('•',M,y+3.5); doc.setTextColor(...INK); doc.text(ls,M+4,y+3.5); y+=ls.length*4.2+1.5; } }
+  }
+  const n=doc.getNumberOfPages(), foot=pdfT(['ReteLab',info.name,info.cls,info.ex].filter(Boolean).join(' · '));
+  for(let i=1;i<=n;i++){ doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(foot,M,PH-9); doc.text(`Pagina ${i} di ${n}`,PW-M,PH-9,{align:'right'}); }
+  doc.save(info.file+'.pdf');
+}
+let reportInfo={name:'',cls:'',ex:'',runcfg:true};
+try{ const r=JSON.parse(localStorage.getItem('retelab.report')||'null'); if(r) Object.assign(reportInfo,r); }catch(e){}
+function openReport(){
+  if(!S.devices.length){ toast('La rete è vuota: aggiungi qualche dispositivo prima di creare il documento.','err'); return; }
+  modal(`<h3>Documento della rete</h3>
+    <p class="note">Il documento contiene lo schema, il piano degli indirizzi, i collegamenti e la configurazione di ogni dispositivo.</p>
+    <div class="fgrid">
+      <label for="rName">Studente</label><input class="inp" id="rName" value="${esc(reportInfo.name)}" placeholder="Nome e cognome" autocomplete="name">
+      <label for="rCls">Classe</label><input class="inp" id="rCls" value="${esc(reportInfo.cls)}" placeholder="es. 4ª E SIA">
+      <label for="rEx">Esercizio</label><input class="inp" id="rEx" value="${esc(reportInfo.ex)}" placeholder="es. Esercizio 3 – Due LAN e un router">
+      <label for="rFile">Nome del file</label><input class="inp" id="rFile" value="${esc(lastFileName)}" placeholder="Cognome_EsN">
+    </div>
+    <label class="chk"><input type="checkbox" id="rRun" ${reportInfo.runcfg?'checked':''}> Aggiungi la configurazione completa dei router (show running-config)</label>
+    ${CAN_DL?'':'<p class="note"><b>In questa finestra il browser non permette di scaricare né di stampare.</b> Apri ReteLab da GitHub Pages per creare il documento.</p>'}
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annulla</button><button class="btn" id="rPrint" ${CAN_DL?'':'disabled'}>Stampa…</button><button class="btn pri" id="rPdf" ${CAN_DL?'':'disabled'}>Scarica PDF</button></div>`,m=>{
+    const read=()=>{ reportInfo={name:m.querySelector('#rName').value.trim(),cls:m.querySelector('#rCls').value.trim(),ex:m.querySelector('#rEx').value.trim(),runcfg:m.querySelector('#rRun').checked};
+      try{ localStorage.setItem('retelab.report',JSON.stringify(reportInfo)); }catch(e){}
+      lastFileName=m.querySelector('#rFile').value.trim().replace(/\.(pdf|json)$/i,'').replace(/[\\/:*?"<>|]+/g,'_')||'rete';
+      return Object.assign({file:lastFileName},reportInfo); };
+    const ex=exportSvg();
+    m.querySelector('#rPrint').addEventListener('click',async()=>{ const info=read(); let png=null; try{ png=ex&&await svgToPng(ex); }catch(e){}
+      const B=buildReport(info); const r=document.getElementById('report'); r.innerHTML=reportHtml(B,png&&png.data);
+      const t=document.title; document.title=info.file; modalRoot.innerHTML='';
+      const done=()=>{ document.title=t; window.removeEventListener('afterprint',done); }; window.addEventListener('afterprint',done);
+      const img=r.querySelector('img'); const go=()=>window.print(); if(img&&!img.complete){ img.onload=go; img.onerror=go; } else go(); });
+    m.querySelector('#rPdf').addEventListener('click',async e=>{ const b=e.currentTarget; const info=read(); b.disabled=true; b.textContent='Preparazione…';
+      try{ const png=ex?await svgToPng(ex):null; await makePdf(buildReport(info),png,info); modalRoot.innerHTML=''; toast(`Scaricato ${info.file}.pdf`); }
+      catch(err){ b.disabled=false; b.textContent='Scarica PDF'; toast(err&&err.message==='lib'?'Non riesco a caricare il generatore di PDF: controlla la connessione a Internet, oppure usa Stampa e scegli «Salva come PDF».':'Non sono riuscito a creare il PDF. Prova con Stampa e scegli «Salva come PDF».','err'); } });
+  });
+}
+document.getElementById('bPdf').addEventListener('click',openReport);
+document.getElementById('bNew').addEventListener('click',()=>{
+  const go=()=>{ S={devices:[],links:[],seq:1}; resetRuntime(); sel=null; linkFrom=null; save(); render(); renderInsp(); fitView(); toast('Nuova rete vuota. Se ti serviva quella di prima, usa Annulla.'); };
+  if(!S.devices.length){ go(); return; }
+  modal(`<h3>Iniziare una nuova rete?</h3><p class="note">La rete che hai sullo schermo verrà sostituita da una rete vuota. Se vuoi conservarla, esportala prima. Puoi comunque tornare indietro con Annulla.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annulla</button><button class="btn" id="mExpFirst">Esporta prima</button><button class="btn pri" id="mNew">Nuova rete</button></div>`,m=>{
+    m.querySelector('#mNew').addEventListener('click',()=>{ modalRoot.innerHTML=''; go(); });
+    m.querySelector('#mExpFirst').addEventListener('click',()=>{ modalRoot.innerHTML=''; document.getElementById('bExp').click(); });
   });
 });
 
