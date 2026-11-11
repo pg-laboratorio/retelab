@@ -15,12 +15,14 @@ Non serve installare niente e non serve un account. Il lavoro viene salvato auto
 | **PC / Portatile** | Indirizzo IP statico o DHCP, subnet mask, gateway, server DNS. Indirizzo MAC. Terminale e browser. |
 | **Stampante** | Indirizzo IP statico o DHCP: serve per gli esercizi con dispositivi a indirizzo fisso. |
 | **Server** | Indirizzo IP, servizi **HTTP** (pagina web), **DNS** (record A) e **DHCP**. |
-| **Switch** | 8 porte, VLAN per ogni porta. Il cavo tra due switch funziona da trunk. |
+| **Switch** | 8 porte, VLAN per ogni porta. Il cavo tra due switch funziona da trunk. **Tabella MAC** imparata dal traffico, con flooding quando il MAC di destinazione è sconosciuto. Terminale in stile Cisco per consultarla. |
 | **Router** | 4 interfacce **accese o spente** (shutdown), rotte statiche e rotta di default, **NAT**, server **DHCP** con pool, gateway (default-router) e indirizzi esclusi. Si configura dal pannello o con i **comandi Cisco**. Come sui router Cisco, le interfacce di un router nuovo sono spente. |
 | **Firewall** | Interfacce WAN / LAN / DMZ, rotte, NAT e **regole permit/deny** lette dall'alto in basso. |
 | **Internet** | Rappresenta la rete pubblica: non instrada gli indirizzi privati. |
 
 Quando un pacchetto non arriva, il terminale spiega **perché**: gateway fuori dalla rete, nessuna rotta, interfaccia spenta, NAT mancante, VLAN diversa, regola del firewall, nome DNS sconosciuto e così via. I pacchetti viaggiano animati sullo schema, con un colore per ogni protocollo.
+
+Anche gli **switch** imparano: quando ricevono un frame annotano il MAC sorgente e la porta da cui è arrivato. Se il MAC di destinazione non è ancora nella tabella, il frame esce da tutte le porte della VLAN (**flooding**), e sullo schema lo si vede lampeggiare. La tabella si consulta nella scheda **Tabella MAC** o con `show mac address-table`, e compare anche nel documento PDF.
 
 Ogni scheda di rete ha un **indirizzo MAC**. I dispositivi imparano i MAC con **ARP**: la richiesta broadcast lampeggia su tutti i dispositivi che la ricevono, così si vede fin dove arriva un dominio di broadcast. Dopo un ping, il pulsante **Pacchetti** mostra il viaggio tratto per tratto: MAC e IP di sorgente e destinazione, richieste ARP, chi le riceve e chi risponde.
 
@@ -37,6 +39,15 @@ Un **indirizzo IP duplicato** si comporta come in una rete vera: `ipconfig` lo s
 | `tracert <ip o nome>` | `ping`, `traceroute` |
 | `nslookup <nome>` | |
 | `http <ip o nome>` | |
+
+Sul **terminale dello switch** (sola consultazione: porte e VLAN si configurano dal pannello):
+
+| Comando | A cosa serve |
+|---|---|
+| `show mac address-table` | Tabella MAC: VLAN, indirizzo, porta (anche `interface fa0/1` o `vlan 10` per filtrare) |
+| `clear mac address-table dynamic` | Svuota la tabella (dopo `enable`) |
+| `show vlan brief` | VLAN e porte access |
+| `show interfaces status` | Stato delle porte, VLAN o trunk |
 
 Comandi di configurazione del router, dopo `configure terminal`:
 

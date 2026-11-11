@@ -97,6 +97,9 @@ select.btn{padding-right:6px}
 .link .wire.down{stroke-dasharray:7 6;opacity:.7}
 .arpring{fill:none;stroke:var(--warn);stroke-width:3;animation:burst 1s ease-out forwards}
 .arpring.ans{stroke:var(--ok)}
+.floodring{fill:none;stroke:var(--p-dns);stroke-width:3;animation:burst 1s ease-out forwards}
+.floodring.ans{stroke:var(--ok)}
+.arplbl.flood{fill:var(--p-dns)}
 .arplbl{font-family:var(--f-mono);font-size:12px;font-weight:600;fill:var(--warn);paint-order:stroke;stroke:var(--panel);stroke-width:4px;animation:fade 1.2s ease-in forwards}
 .macs{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
 .tog{display:inline-flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
@@ -425,6 +428,35 @@ function arpLearn(d,ifn,ip,mac){ arpTab(d).set(ip,{mac,ifn,t:Date.now()}); }
 function arpValid(d){ const adj=buildGraph(), t=arpTab(d); for(const [ip,e] of [...t]){ if(!findAll(adj,d.id+':'+e.ifn,ip,d.id).some(c=>iface(dev(c.devId),c.ifn).mac===e.mac)) t.delete(ip); } return t; }
 function macOwner(mac){ for(const d of S.devices) for(const f of d.ifaces) if(f.mac===mac) return {d,f}; return null; }
 
+/* ---------- switch MAC address table ---------- */
+// Each switch learns "source MAC -> port" from the frames it receives, like a real switch, and forgets after 5 minutes.
+const MACT=new Map(), MAC_AGE=300000, BCAST='ff:ff:ff:ff:ff:ff';
+function macTab(sw){ if(!MACT.has(sw.id)) MACT.set(sw.id,new Map()); return MACT.get(sw.id); }
+function macLearn(sw,vlan,mac,port){ if(port&&port!=='?') macTab(sw).set(vlan+'|'+mac,{vlan,mac,port,t:Date.now()}); }
+function macValid(sw){ const t=macTab(sw); for(const [k,e] of [...t]){ const l=linkOf(sw.id,e.port); if(Date.now()-e.t>MAC_AGE||!l||!linkUp(l)) t.delete(k); } return t; }
+function macLookup(sw,vlan,mac){ return macValid(sw).get(vlan+'|'+mac)||null; }
+function portOn(sw,l){ return l?(l.a.d===sw.id?l.a.i:l.b.i):'?'; }
+function linkBetween(aId,bId){ return S.links.find(l=>linkUp(l)&&((l.a.d===aId&&l.b.d===bId)||(l.b.d===aId&&l.a.d===bId))); }
+// A frame crossing the switches on a path of devices [sender, sw…, receiver]: learn, then forward or flood.
+function swPath(ids,sLink,rLink,smac,dmac){
+  const hops=[]; let vlan=null;
+  for(let i=1;i<ids.length-1;i++){ const sw=dev(ids[i]); if(!sw||sw.type!=='switch') continue;
+    const inP=portOn(sw,i===1?sLink:linkBetween(sw.id,ids[i-1])), outP=portOn(sw,i===ids.length-2?rLink:linkBetween(sw.id,ids[i+1]));
+    if(vlan===null){ const f=iface(sw,inP); vlan=+(f&&f.vlan)||1; }
+    macLearn(sw,vlan,smac,inP);
+    const known=dmac!==BCAST&&macLookup(sw,vlan,dmac);
+    const fl=known?null:sw.ifaces.filter(f=>{ if(f.name===inP) return false; const l=linkOf(sw.id,f.name); if(!l||!linkUp(l)) return false; const o=dev(otherEnd(l,sw.id,f.name).d); return o.type==='switch'||(+f.vlan||1)===vlan; }).map(f=>otherEnd(linkOf(sw.id,f.name),sw.id,f.name).d);
+    hops.push({sw:sw.id,in:inP,out:outP,vlan,flood:!known,floodTo:fl});
+  }
+  return hops;
+}
+// A broadcast reaches every switch of the domain: each one learns the sender on the port that leads back to it.
+function learnBroadcast(adj,startKey,smac,sLink){
+  const {prev}=reach(adj,startKey);
+  prev.forEach((v,k)=>{ if(!k.includes('#v')) return; const ids=[]; let x=k; while(x){ const id=keyDev(x); if(ids[0]!==id) ids.unshift(id); x=prev.get(x); }
+    const sw=dev(keyDev(k)); macLearn(sw,+k.split('#v')[1]||1,smac,portOn(sw,ids.length===2?sLink:linkBetween(sw.id,ids[ids.length-2]))); });
+}
+
 /* ---------- routing ---------- */
 function ifForNext(d,ip){ return d.ifaces.find(f=>{const c=ifCfg(f); return c&&f.up!==false&&inNet(ip,c.ip,c.p);}); }
 function lookup(d,dst){
@@ -488,17 +520,23 @@ function travel(start,dst,proto,opt={}){
     const cands=findAll(adj,key,nh,cur.id);
     const myIp=ifCfg(r.f).ip;
     const cached=arpTab(cur).get(nh);
+    const sLink=lk;
     if(!cands.length){
-      frames.push({from:cur.id,fromIf:r.f.name,to:null,via:[],smac:r.f.mac,dmac:null,sip:pkt.src,dip:pkt.dst,arp:{ip:nh,domain:bcastDomain(adj,key),answered:null}});
+      learnBroadcast(adj,key,r.f.mac,sLink);
+      frames.push({from:cur.id,fromIf:r.f.name,to:null,via:[],smac:r.f.mac,dmac:null,sip:pkt.src,dip:pkt.dst,sw:[],arp:{ip:nh,domain:bcastDomain(adj,key),answered:null}});
       return fail(r.via!=null?`${cur.name}: il ${k==='router'?'next-hop':'gateway'} ${i2ip(nh)} non risponde alla richiesta ARP sulla rete di ${r.f.name}. Nessun dispositivo raggiungibile ha quell'indirizzo.`:`${cur.name}: nessun dispositivo con indirizzo ${i2ip(nh)} risponde all'ARP sulla rete di ${r.f.name} (indirizzo sbagliato, mask sbagliata, cavo mancante o VLAN diversa).`);
     }
     // two devices with the same IP: who answers changes from one packet to the next
     const found=cands.length>1?cands[Math.floor(Math.random()*cands.length)]:cands[0];
     const fd=dev(found.devId), ff=iface(fd,found.ifn);
     let arp=null;
-    if(!cached||cached.mac!==ff.mac){ arp={ip:nh,domain:bcastDomain(adj,key),answered:fd.id,refresh:!!cached}; arpLearn(fd,ff.name,myIp,r.f.mac); }
+    const rLink=linkOf(fd.id,ff.name);
+    if(!cached||cached.mac!==ff.mac){ arp={ip:nh,domain:bcastDomain(adj,key),answered:fd.id,refresh:!!cached}; arpLearn(fd,ff.name,myIp,r.f.mac);
+      // the ARP request (broadcast) teaches every switch where the sender is; the unicast reply teaches the switches on the way back
+      learnBroadcast(adj,key,r.f.mac,sLink); swPath([...found.devs].reverse(),rLink,sLink,ff.mac,r.f.mac); }
     arpLearn(cur,r.f.name,nh,ff.mac);
-    frames.push({from:cur.id,fromIf:r.f.name,to:fd.id,toIf:ff.name,via:found.devs.slice(1,-1),smac:r.f.mac,dmac:ff.mac,sip:pkt.src,dip:pkt.dst,arp});
+    const swh=swPath(found.devs,sLink,rLink,r.f.mac,ff.mac);
+    frames.push({from:cur.id,fromIf:r.f.name,to:fd.id,toIf:ff.name,via:found.devs.slice(1,-1),smac:r.f.mac,dmac:ff.mac,sip:pkt.src,dip:pkt.dst,arp,sw:swh,flood:swh.some(h=>h.flood)?[...new Set(swh.filter(h=>h.flood).flatMap(h=>[h.sw,...h.floodTo]))]:null});
     found.devs.slice(1).forEach(id=>{ if(phys[phys.length-1]!==id) phys.push(id); });
     cur=fd; ingress=found.ifn; hops.push({d:cur.id,ifn:ingress});
   }
@@ -582,17 +620,20 @@ function animPath(ids,color){
     requestAnimationFrame(f);
   });
 }
-function flashArp(fr){
+function flashArp(fr,flood){
   return new Promise(res=>{
     if(reduceMotion){ res(); return; }
     const src=dev(fr.from);
+    if(flood){ flood.forEach(id=>{ const d=dev(id); if(!d) return; const c=document.createElementNS(NS,'circle'); c.setAttribute('cx',d.x); c.setAttribute('cy',d.y); c.setAttribute('r',10); c.setAttribute('class','floodring'+(id===fr.to?' ans':'')); animG.appendChild(c); setTimeout(()=>c.remove(),1100); });
+      if(src){ const t=document.createElementNS(NS,'text'); t.setAttribute('x',Math.min(VB.x+VB.w-110,Math.max(VB.x+110,src.x))); t.setAttribute('y',Math.max(VB.y+20,src.y-40)); t.setAttribute('text-anchor','middle'); t.setAttribute('class','arplbl flood'); t.textContent='MAC sconosciuto: flooding'; animG.appendChild(t); setTimeout(()=>t.remove(),1200); }
+      setTimeout(res,750); return; }
     fr.arp.domain.forEach(id=>{ const d=dev(id); if(!d) return; const c=document.createElementNS(NS,'circle'); c.setAttribute('cx',d.x); c.setAttribute('cy',d.y); c.setAttribute('r',10); c.setAttribute('class','arpring'+(id===fr.arp.answered?' ans':'')); animG.appendChild(c); setTimeout(()=>c.remove(),1100); });
-    if(src){ const t=document.createElementNS(NS,'text'); t.setAttribute('x',Math.min(VB.x+VB.w-110,Math.max(VB.x+110,src.x))); t.setAttribute('y',Math.max(VB.y+20,src.y-40)); t.setAttribute('text-anchor','middle'); t.setAttribute('class','arplbl'); t.textContent=`ARP: chi ha ${i2ip(fr.arp.ip)}?`; animG.appendChild(t); setTimeout(()=>t.remove(),1200); }
+    if(src&&fr.arp){ const t=document.createElementNS(NS,'text'); t.setAttribute('x',Math.min(VB.x+VB.w-110,Math.max(VB.x+110,src.x))); t.setAttribute('y',Math.max(VB.y+20,src.y-40)); t.setAttribute('text-anchor','middle'); t.setAttribute('class','arplbl'); t.textContent=`ARP: chi ha ${i2ip(fr.arp.ip)}?`; animG.appendChild(t); setTimeout(()=>t.remove(),1200); }
     setTimeout(res,750);
   });
 }
 async function playDir(t,col){
-  for(const fr of t.frames){ if(fr.arp) await flashArp(fr); if(fr.to) await animPath([fr.from,...fr.via,fr.to],col); }
+  for(const fr of t.frames){ if(fr.arp) await flashArp(fr); if(fr.flood) await flashArp(fr,fr.flood); if(fr.to) await animPath([fr.from,...fr.via,fr.to],col); }
   if(!t.ok){ burst(t.where,false); return false; }
   return true;
 }
@@ -607,7 +648,7 @@ function playTrip(rt,proto){
 /* ---------- terminal ---------- */
 const CLI={};
 function cliSt(d){ return CLI[d.id]||(CLI[d.id]={mode:'user',ifn:null,pool:null}); }
-function prompt(d){ if(kindOf(d)!=='router') return 'C:\\>'; const s=cliSt(d); return d.name+({user:'>',priv:'#',conf:'(config)#',if:'(config-if)#',dhcp:'(dhcp-config)#'}[s.mode]||'>'); }
+function prompt(d){ if(d.type==='switch'){ return d.name+(cliSt(d).mode==='priv'?'#':'>'); } if(kindOf(d)!=='router') return 'C:\\>'; const s=cliSt(d); return d.name+({user:'>',priv:'#',conf:'(config)#',if:'(config-if)#',dhcp:'(dhcp-config)#'}[s.mode]||'>'); }
 function findIfByName(d,s){
   s=String(s||'').toLowerCase().replace(/\s+/g,''); if(!s) return null;
   for(const f of d.ifaces){
@@ -737,10 +778,81 @@ function runningConfig(d){
   if(d.type==='firewall'&&d.fw.rules.length){ L.push('!','! Regole del firewall (si modificano dal pannello Regole)'); d.fw.rules.forEach((r,i)=>L.push(`!  ${i+1}. ${r.action} ${r.proto} ${r.src||'any'} -> ${r.dst||'any'}`)); L.push(`!  politica predefinita: ${d.fw.def}`); }
   L.push('!','end'); return L;
 }
+// Console of a switch (Cisco IOS style, read-only: the ports are configured from the panel).
+function macRows(d,filter){
+  return [...macValid(d).values()].filter(e=>!filter||filter(e)).sort((a,b)=>a.vlan-b.vlan||a.port.localeCompare(b.port,'it',{numeric:true})||a.mac.localeCompare(b.mac));
+}
+function swCmd(d,line,p){
+  const st=cliSt(d); const w=line.trim().split(/\s+/).filter(Boolean); const W=w.map(x=>x.toLowerCase());
+  const k=(i,full,min=1)=>W[i]!==undefined&&W[i].length>=min&&full.startsWith(W[i]);
+  const bad=h=>{ p('% Invalid input detected.','err'); if(h) p('→ '+h,'note'); };
+  if(!w.length) return;
+  const macT=i=>(k(i,'mac',3)&&k(i+1,'address-table',3))?2:(k(i,'mac-address-table',5)?1:0);
+  if(W[0]==='help'||W[0]==='?'){
+    p(`Modalità: ${d.name}> utente · ${d.name}# privilegiata (enable)`,'dim');
+    p('  show mac address-table              tabella MAC: VLAN, indirizzo, porta');
+    p('  show mac address-table interface fa0/1   solo una porta');
+    p('  show mac address-table vlan 10      solo una VLAN');
+    p('  show vlan brief                     VLAN e porte access');
+    p('  show interfaces status              stato delle porte');
+    p(`  clear mac address-table dynamic     svuota la tabella (solo ${d.name}#)`);
+    p('  enable    disable    cls');
+    p('Le VLAN delle porte si configurano dal pannello Porte.','dim');
+  }
+  else if(W[0]==='cls'||(W[0]==='clear'&&!W[1])) return 'cls';
+  else if(k(0,'enable',2)) st.mode='priv';
+  else if(k(0,'disable',4)||k(0,'exit',2)||k(0,'logout',3)) st.mode='user';
+  else if(k(0,'show',2)&&macT(1)){
+    const i=1+macT(1); let filter=null, bad1=false;
+    for(let j=i;j<W.length;j++){
+      if(k(j,'dynamic',2)) continue;
+      if(k(j,'interface',3)){ const f=findIfByName(d,w.slice(j+1).join('')); if(!f){ bad1=true; break; } filter=e=>e.port===f.name; break; }
+      if(k(j,'vlan',1)){ const v=+W[j+1]; if(!v){ bad1=true; break; } filter=e=>e.vlan===v; break; }
+      bad1=true; break;
+    }
+    if(bad1){ bad('Prova: show mac address-table, oppure show mac address-table interface fa0/1'); return; }
+    const rows=macRows(d,filter);
+    p('          Mac Address Table'); p('-------------------------------------------'); p('');
+    p('Vlan    Mac Address       Type        Ports'); p('----    -----------       --------    -----');
+    rows.forEach(e=>p(`${String(e.vlan).padStart(4)}    ${macCisco(e.mac)}    DYNAMIC     ${e.port}`));
+    p(`Total Mac Addresses for this criterion: ${rows.length}`);
+    if(!rows.length) p('(La tabella è vuota: lo switch impara gli indirizzi quando passa del traffico, per esempio un ping.)','dim');
+  }
+  else if(k(0,'show',2)&&k(1,'vlan',2)){
+    const trunk=f=>{ const l=linkOf(d.id,f.name); return l&&dev(otherEnd(l,d.id,f.name).d).type==='switch'; };
+    const vl=[...new Set([1,...d.ifaces.map(f=>+f.vlan||1)])].sort((a,b)=>a-b);
+    p('VLAN Name                             Status    Ports'); p('---- -------------------------------- --------- -------------------------------');
+    vl.forEach(v=>{ const ports=d.ifaces.filter(f=>(+f.vlan||1)===v&&!trunk(f)).map(f=>f.name).join(', ');
+      p(`${String(v).padEnd(5)}${(v===1?'default':'VLAN'+String(v).padStart(4,'0')).padEnd(33)}active    ${ports}`); });
+    if(d.ifaces.some(trunk)) p('(Le porte trunk non compaiono: trasportano tutte le VLAN.)','dim');
+  }
+  else if(k(0,'show',2)&&k(1,'interfaces',2)&&k(2,'status',2)){
+    p('Port      Status       Vlan       Duplex  Speed Type');
+    d.ifaces.forEach(f=>{ const l=linkOf(d.id,f.name); const tr=l&&dev(otherEnd(l,d.id,f.name).d).type==='switch';
+      p(`${f.name.padEnd(10)}${(l&&linkUp(l)?'connected':'notconnect').padEnd(13)}${(tr?'trunk':String(+f.vlan||1)).padEnd(11)}a-full  a-100 10/100BaseTX`); });
+  }
+  else if(k(0,'clear',3)&&macT(1)){
+    if(st.mode==='user'){ bad('Serve la modalità privilegiata: scrivi enable.'); return; }
+    macTab(d).clear();
+  }
+  else if(k(0,'configure',4)||k(0,'interface',3)||k(0,'switchport',3)||k(0,'vlan',2)) bad('In ReteLab le porte e le VLAN dello switch si configurano dal pannello Porte.');
+  else if(k(0,'ping',2)||k(0,'traceroute',3)||k(0,'tracert',3)) bad('Questo switch non ha un indirizzo IP: il ping si fa dai PC o dai router.');
+  else if(k(0,'show',2)) bad('Prova: show mac address-table, show vlan brief, show interfaces status');
+  else bad('Scrivi help per l\'elenco dei comandi.');
+}
+function tabMac(d){
+  const rows=macRows(d);
+  return `<div class="sec"><h4>Tabella MAC<span class="sp"></span><button class="btn sm" data-a="clearMac">Svuota</button></h4>
+    <p class="note">Lo switch impara da solo dove si trova ogni dispositivo: quando riceve un frame annota il MAC sorgente e la porta da cui è arrivato. Se non conosce ancora il MAC di destinazione, invia il frame su tutte le porte della VLAN (flooding). Una voce si cancella dopo 5 minuti senza traffico. Dal Terminale: <span class="mono">show mac address-table</span>.</p>
+    ${rows.length?`<div class="twrap"><table class="tbl"><thead><tr><th>VLAN</th><th>Indirizzo MAC</th><th>Porta</th><th>Dispositivo</th><th>Età</th></tr></thead><tbody>${rows.map(e=>{ const o=macOwner(e.mac); return `<tr><td class="mono">${e.vlan}</td><td class="mono">${macCisco(e.mac)}</td><td class="mono">${esc(e.port)}</td><td>${o?esc(o.d.name):'—'}</td><td class="mono">${Math.round((Date.now()-e.t)/1000)} s</td></tr>`; }).join('')}</tbody></table></div>`
+    :'<p class="note">La tabella è vuota. Fai un ping tra due dispositivi collegati a questo switch e torna qui.</p>'}
+  </div>`;
+}
 function runCmd(d,line){
   const out=[]; const p=(t,c='')=>out.push([t,c]); const anims=[];
   const isR=kindOf(d)==='router';
   const why=m=>{ if(!S.exercise) p('→ Perché: '+m,'note'); };
+  if(d.type==='switch'){ if(swCmd(d,line,p)==='cls'){ term[d.id]=[]; return {out:[],anims,cleared:true}; } return {out,anims}; }
   if(isR){ const h=ios(d,line,p); if(h===true) return {out,anims}; if(h&&h.redo!==undefined) line=h.redo; }
   const a=line.trim().split(/\s+/); const c=(a[0]||'').toLowerCase();
   if(!c) return {out,anims};
@@ -952,7 +1064,7 @@ function loadState(obj){
 
 // A new network (import or example) starts clean: ARP tables, router consoles, terminals and the last capture belong to the old one.
 function resetRuntime(){
-  ARP.clear(); [CLI,term,hist,histPos,browserState].forEach(o=>{ for(const k in o) delete o[k]; });
+  ARP.clear(); MACT.clear(); [CLI,term,hist,histPos,browserState].forEach(o=>{ for(const k in o) delete o[k]; });
   lastCap=null; const b=document.getElementById('bCap'); if(b) b.disabled=true;
 }
 
@@ -1137,7 +1249,7 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- inspector ---------- */
 const insp=document.getElementById('insp');
-function tabsFor(d){ return {host:d.type==='server'?['Configurazione','Servizi','Terminale']:d.type==='printer'?['Configurazione']:['Configurazione','Terminale','Browser'],switch:['Porte'],router:d.type==='firewall'?['Interfacce','Routing e NAT','Regole','DHCP','Terminale']:['Interfacce','Routing e NAT','DHCP','Terminale']}[kindOf(d)]; }
+function tabsFor(d){ return {host:d.type==='server'?['Configurazione','Servizi','Terminale']:d.type==='printer'?['Configurazione']:['Configurazione','Terminale','Browser'],switch:['Porte','Tabella MAC','Terminale'],router:d.type==='firewall'?['Interfacce','Routing e NAT','Regole','DHCP','Terminale']:['Interfacce','Routing e NAT','DHCP','Terminale']}[kindOf(d)]; }
 function peerTxt(d,ifn){ const l=linkOf(d.id,ifn); if(!l) return '<span class="chip off">libera</span>'; const o=otherEnd(l,d.id,ifn); const od=dev(o.d); return `<span class="mono">${esc(od.name)} · ${esc(o.i)}</span>`; }
 const inp=(b,v,o={})=>`<input class="inp ${o.mono!==false?'mono':''}" data-b="${b}" value="${esc(v)}" ${o.v?`data-v="${o.v}"`:''} ${o.ro?'readonly':''} placeholder="${esc(o.ph||'')}" ${o.id?`id="${o.id}"`:''} spellcheck="false" autocomplete="off">`;
 function renderInsp(){
@@ -1154,6 +1266,7 @@ function renderInsp(){
   let body='';
   if(t==='Configurazione') body=tabHost(d);
   else if(t==='Porte') body=tabSwitch(d);
+  else if(t==='Tabella MAC') body=tabMac(d);
   else if(t==='Interfacce') body=tabIfaces(d);
   else if(t==='Routing e NAT') body=tabRouting(d);
   else if(t==='DHCP') body=tabDhcp(d);
@@ -1279,13 +1392,13 @@ function tabServices(d){
 }
 function tabTerm(d){
   const isR=kindOf(d)==='router';
-  const q=isR?['enable','configure terminal','end','show ip interface brief','show running-config','show ip route','show arp','ping ']:['ipconfig','ipconfig /all','ipconfig /renew','arp -a','ping ','tracert ','nslookup '];
+  const q=isR?['enable','configure terminal','end','show ip interface brief','show running-config','show ip route','show arp','ping ']:d.type==='switch'?['enable','show mac address-table','show vlan brief','show interfaces status','clear mac address-table dynamic']:['ipconfig','ipconfig /all','ipconfig /renew','arp -a','ping ','tracert ','nslookup '];
   return `<div class="quick">${q.map(c=>`<button class="btn sm" data-a="quick" data-x="${esc(c)}">${esc(c.trim())}</button>`).join('')}<button class="btn sm ghost" data-a="quick" data-x="help">help</button></div>
   <div class="term"><div class="tout" id="tout" aria-live="polite"></div><form class="tin" id="tform"><span id="tprompt">${esc(prompt(d))}</span><input id="tcmd" aria-label="Comando" autocomplete="off" spellcheck="false" autocapitalize="off"></form></div>`;
 }
 function paintTerm(d){
   const o=document.getElementById('tout'); if(!o) return;
-  if(!term[d.id]) term[d.id]=kindOf(d)==='router'?[[`Console di ${d.name}. Scrivi help per l'elenco dei comandi.`,'dim'],['Per configurare: enable, poi configure terminal.','dim']]:[[`${d.name} — scrivi help per l'elenco dei comandi.`,'dim']];
+  if(!term[d.id]) term[d.id]=d.type==='switch'?[[`Console di ${d.name}. Scrivi help per l'elenco dei comandi.`,'dim'],['Per vedere la tabella MAC: show mac address-table.','dim']]:kindOf(d)==='router'?[[`Console di ${d.name}. Scrivi help per l'elenco dei comandi.`,'dim'],['Per configurare: enable, poi configure terminal.','dim']]:[[`${d.name} — scrivi help per l'elenco dei comandi.`,'dim']];
   o.innerHTML=''; term[d.id].forEach(([t,c])=>{ const s=document.createElement('div'); if(c) s.className=c; s.textContent=t||'\u00a0'; o.appendChild(s); });
   o.scrollTop=o.scrollHeight;
 }
@@ -1342,6 +1455,7 @@ insp.addEventListener('click',e=>{
   if(a==='delRule') d.fw.rules.splice(+x,1);
   if(a==='upRule'&&+x>0){ const r=d.fw.rules; [r[+x-1],r[+x]]=[r[+x],r[+x-1]]; }
   if(a==='addRec') d.svc.dns.records.push({name:'',ip:''});
+  if(a==='clearMac'){ macTab(d).clear(); renderInsp(); return; }
   if(a==='addExcl') d.dhcp.excl.push({from:'',to:''});
   if(a==='delExcl') d.dhcp.excl.splice(+x,1);
   if(a==='delPool') d.dhcp.pools.splice(+x,1);
@@ -1397,13 +1511,13 @@ document.getElementById('bCap').addEventListener('click',()=>{ if(!lastCap) retu
   const body=lastCap.items.map(it=>{ const t=it.t; let rows='';
     t.frames.forEach(fr=>{
       if(fr.arp){ const hosts=fr.arp.domain.filter(id=>dev(id)&&dev(id).type!=='switch'), sws=fr.arp.domain.filter(id=>dev(id)&&dev(id).type==='switch');
-        rows+=`<tr class="arp"><td colspan="5"><b>ARP</b>: ${nm(fr.from)} chiede in broadcast «chi ha ${i2ip(fr.arp.ip)}?» (MAC destinazione FF-FF-FF-FF-FF-FF). ${sws.length?`Gli switch ${sws.map(nm).join(', ')} la inoltrano su tutte le porte. `:''}La ricevono: ${hosts.length?hosts.map(nm).join(', '):'nessuno'}. ${fr.arp.answered?`Risponde ${nm(fr.arp.answered)} con il suo MAC.`:'Nessuno risponde.'}</td></tr>`; }
-      if(fr.to) rows+=`<tr><td class="tr">${[fr.from,...fr.via,fr.to].map(nm).join(' → ')}</td><td>${mac(fr.smac)}</td><td>${mac(fr.dmac)}</td><td>${i2ip(fr.sip)}</td><td>${i2ip(fr.dip)}</td></tr>`;
+        rows+=`<tr class="arp"><td colspan="6"><b>ARP</b>: ${nm(fr.from)} chiede in broadcast «chi ha ${i2ip(fr.arp.ip)}?» (MAC destinazione FF-FF-FF-FF-FF-FF). ${sws.length?`Gli switch ${sws.map(nm).join(', ')} la inoltrano su tutte le porte. `:''}La ricevono: ${hosts.length?hosts.map(nm).join(', '):'nessuno'}. ${fr.arp.answered?`Risponde ${nm(fr.arp.answered)} con il suo MAC.`:'Nessuno risponde.'}</td></tr>`; }
+      if(fr.to) rows+=`<tr><td class="tr">${[fr.from,...fr.via,fr.to].map(nm).join(' → ')}</td><td>${mac(fr.smac)}</td><td>${mac(fr.dmac)}</td><td>${i2ip(fr.sip)}</td><td>${i2ip(fr.dip)}</td><td class="tr">${(fr.sw||[]).length?fr.sw.map(h=>`${nm(h.sw)}: ${esc(h.in)} → ${h.flood?'<b>tutte le porte</b> (MAC sconosciuto, flooding)':esc(h.out)}`).join('<br>'):'—'}</td></tr>`;
     });
-    if(!t.ok) rows+=`<tr class="fail"><td colspan="5">${S.exercise?`Il pacchetto non prosegue oltre ${nm(t.where)}.`:esc(t.msg)}</td></tr>`;
-    if(!rows) rows='<tr><td colspan="5" class="tr">Nessun frame: la destinazione è il dispositivo stesso.</td></tr>';
-    return `<h4>${esc(it.label)}</h4><div class="twrap"><table class="tbl cap"><thead><tr><th>Tratto</th><th>MAC sorgente</th><th>MAC destinazione</th><th>IP sorgente</th><th>IP destinazione</th></tr></thead><tbody>${rows}</tbody></table></div>`; }).join('');
-  modal(`<h3>Pacchetti di «${esc(lastCap.cmd)}» da ${esc(lastCap.dev)}</h3><p class="note">Una riga per ogni tratto tra due dispositivi che lavorano con l'IP. Gli switch inoltrano il frame senza modificarlo. Passa il mouse su un MAC per vedere a chi appartiene. Nel ping si mostra solo il primo dei pacchetti inviati.</p>${body}<div class="row" style="justify-content:flex-end"><button class="btn pri" data-close>Chiudi</button></div>`);
+    if(!t.ok) rows+=`<tr class="fail"><td colspan="6">${S.exercise?`Il pacchetto non prosegue oltre ${nm(t.where)}.`:esc(t.msg)}</td></tr>`;
+    if(!rows) rows='<tr><td colspan="6" class="tr">Nessun frame: la destinazione è il dispositivo stesso.</td></tr>';
+    return `<h4>${esc(it.label)}</h4><div class="twrap"><table class="tbl cap"><thead><tr><th>Tratto</th><th>MAC sorgente</th><th>MAC destinazione</th><th>IP sorgente</th><th>IP destinazione</th><th>Switch (ingresso → uscita)</th></tr></thead><tbody>${rows}</tbody></table></div>`; }).join('');
+  modal(`<h3>Pacchetti di «${esc(lastCap.cmd)}» da ${esc(lastCap.dev)}</h3><p class="note">Una riga per ogni tratto tra due dispositivi che lavorano con l'IP. Gli switch inoltrano il frame senza modificarlo: l'ultima colonna dice da quale porta è entrato e da quale è uscito, secondo la loro tabella MAC. Passa il mouse su un MAC per vedere a chi appartiene. Nel ping si mostra solo il primo dei pacchetti inviati.</p>${body}<div class="row" style="justify-content:flex-end"><button class="btn pri" data-close>Chiudi</button></div>`);
   modalRoot.querySelector('.box').classList.add('wide');
 });
 document.getElementById('bExp').addEventListener('click',()=>{
@@ -1482,6 +1596,9 @@ function buildReport(info){
       const used=d.ifaces.filter(f=>linkOf(d.id,f.name));
       B.push(used.length?{t:'table',head:['Porta','VLAN','Collegata a'],rows:used.map(f=>{ const o=dev(otherEnd(linkOf(d.id,f.name),d.id,f.name).d); return [f.name,o.type==='switch'?'trunk (tutte)':String(+f.vlan||1),peerName(d,f.name)]; }),mono:[0]}:{t:'p',text:'Nessuna porta collegata.'});
       const free=d.ifaces.filter(f=>!linkOf(d.id,f.name)).map(f=>f.name); if(free.length&&used.length) B.push({t:'p',text:'Porte libere: '+free.join(', ')+'.'});
+      const mt=macRows(d);
+      B.push({t:'p',text:mt.length?'Tabella MAC (show mac address-table), imparata dal traffico passato finora:':'Tabella MAC vuota: lo switch impara gli indirizzi quando passa del traffico, per esempio un ping.'});
+      if(mt.length) B.push({t:'table',head:['VLAN','Indirizzo MAC','Porta','Dispositivo'],rows:mt.map(e=>{ const o=macOwner(e.mac); return [String(e.vlan),macCisco(e.mac),e.port,o?o.d.name:'—']; }),mono:[1,2]});
     } else {
       B.push({t:'table',head:['Interfaccia','Indirizzo IP','Stato','MAC','Collegata a'],rows:d.ifaces.filter(f=>d.type==='router'||f.ip||linkOf(d.id,f.name)).map(f=>{ const c=ifCfg(f); const [st,pr]=ifStatus(d,f); return [fullIf(f.name),c?`${f.ip}/${c.p}`:'—',f.up===false?'spenta':(pr==='up'?'accesa, collegamento attivo':'accesa, collegamento non attivo'),macCisco(f.mac),peerName(d,f.name)]; }),mono:[1,3]});
       const rt=routeTable(d);
