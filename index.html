@@ -445,7 +445,8 @@ function swPath(ids,sLink,rLink,smac,dmac){
     if(vlan===null){ const f=iface(sw,inP); vlan=+(f&&f.vlan)||1; }
     macLearn(sw,vlan,smac,inP);
     const known=dmac!==BCAST&&macLookup(sw,vlan,dmac);
-    hops.push({sw:sw.id,in:inP,out:outP,vlan,flood:!known});
+    const fl=known?null:sw.ifaces.filter(f=>{ if(f.name===inP) return false; const l=linkOf(sw.id,f.name); if(!l||!linkUp(l)) return false; const o=dev(otherEnd(l,sw.id,f.name).d); return o.type==='switch'||(+f.vlan||1)===vlan; }).map(f=>otherEnd(linkOf(sw.id,f.name),sw.id,f.name).d);
+    hops.push({sw:sw.id,in:inP,out:outP,vlan,flood:!known,floodTo:fl});
   }
   return hops;
 }
@@ -535,7 +536,7 @@ function travel(start,dst,proto,opt={}){
       learnBroadcast(adj,key,r.f.mac,sLink); swPath([...found.devs].reverse(),rLink,sLink,ff.mac,r.f.mac); }
     arpLearn(cur,r.f.name,nh,ff.mac);
     const swh=swPath(found.devs,sLink,rLink,r.f.mac,ff.mac);
-    frames.push({from:cur.id,fromIf:r.f.name,to:fd.id,toIf:ff.name,via:found.devs.slice(1,-1),smac:r.f.mac,dmac:ff.mac,sip:pkt.src,dip:pkt.dst,arp,sw:swh,flood:swh.some(h=>h.flood)?bcastDomain(adj,key):null});
+    frames.push({from:cur.id,fromIf:r.f.name,to:fd.id,toIf:ff.name,via:found.devs.slice(1,-1),smac:r.f.mac,dmac:ff.mac,sip:pkt.src,dip:pkt.dst,arp,sw:swh,flood:swh.some(h=>h.flood)?[...new Set(swh.filter(h=>h.flood).flatMap(h=>[h.sw,...h.floodTo]))]:null});
     found.devs.slice(1).forEach(id=>{ if(phys[phys.length-1]!==id) phys.push(id); });
     cur=fd; ingress=found.ifn; hops.push({d:cur.id,ifn:ingress});
   }
